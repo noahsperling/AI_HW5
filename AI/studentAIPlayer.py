@@ -54,7 +54,44 @@ class AIPlayer(Player):
     #       If setup phase 2: list of two 2-tuples of ints -> [(x1,y1), (x2,y2)]
     ##
     def getPlacement(self, currentState):
-       return None
+        numToPlace = 0
+        # implemented by students to return their next move
+        if currentState.phase == SETUP_PHASE_1:  # stuff on my side
+            numToPlace = 11
+            moves = []
+            for i in range(0, numToPlace):
+                move = None
+                while move == None:
+                    # Choose any x location
+                    x = random.randint(0, 9)
+                    # Choose any y location on your side of the board
+                    y = random.randint(0, 3)
+                    # Set the move if this space is empty
+                    if currentState.board[x][y].constr == None and (x, y) not in moves:
+                        move = (x, y)
+                        # Just need to make the space non-empty. So I threw whatever I felt like in there.
+                        currentState.board[x][y].constr == True
+                moves.append(move)
+            return moves
+        elif currentState.phase == SETUP_PHASE_2:  # stuff on foe's side
+            numToPlace = 2
+            moves = []
+            for i in range(0, numToPlace):
+                move = None
+                while move == None:
+                    # Choose any x location
+                    x = random.randint(0, 9)
+                    # Choose any y location on enemy side of the board
+                    y = random.randint(6, 9)
+                    # Set the move if this space is empty
+                    if currentState.board[x][y].constr == None and (x, y) not in moves:
+                        move = (x, y)
+                        # Just need to make the space non-empty. So I threw whatever I felt like in there.
+                        currentState.board[x][y].constr == True
+                moves.append(move)
+            return moves
+        else:
+            return [(0, 0)]
     
     ##
     #getMove
@@ -99,7 +136,8 @@ class AIPlayer(Player):
     #Return: A coordinate that matches one of the entries of enemyLocations. ((int,int))
     ##
     def getAttack(self, currentState, attackingAnt, enemyLocations):
-        return None
+        #Attack a random enemy.
+        return enemyLocations[random.randint(0, len(enemyLocations) - 1)]
         
     ##
     #registerWin
