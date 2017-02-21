@@ -30,7 +30,7 @@ class AIPlayer(Player):
     node_list = []
 
     #maximum depth
-    max_depth = 2
+    max_depth = 3
 
     #current index - for recursive function
     cur_array_index = 0
@@ -199,9 +199,14 @@ class AIPlayer(Player):
 
         best_ten = []
 
-        for i in range (0,2):
-            if not len(node_list) == 0:
-                best_ten.append(node_list.pop())
+        for i in range (0, 2): #temporary
+            if not len(node_list) == 0 and not i >= len(node_list):
+                if(node_list[i][0].whoseTurn == self.me):
+                    best_ten.append(node_list.pop())
+                else:
+                    if i < len(node_list):
+                        best_ten.append(node_list.index(i))
+
 
 
         best_val = -1
@@ -210,8 +215,12 @@ class AIPlayer(Player):
         if curr_depth <= self.max_depth:
             for node in best_ten:
                 best_val = self.move_search(node[0], curr_depth + 1)
-                if best_val > node[2]:
-                    node[2] = best_val
+                if game_state.whoseTurn == self.me:
+                    if best_val > node[2]:
+                        node[2] = best_val
+                else:
+                    if best_val < node[2]:
+                        node[2] = best_val
 
         if not curr_depth == 0:
             return best_val
