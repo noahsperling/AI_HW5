@@ -4,6 +4,7 @@ from Ant import *
 from Construction import *
 from Move import *
 
+
 #
 # AIPlayerUtils.py
 #
@@ -21,13 +22,12 @@ from Move import *
 #
 # determines whether a given coordinate is legal or not
 #
-#Parameters:
+# Parameters:
 #   coord        - an x,y coordinate
 #
 # Return: true (legal) or false (illegal)
 def legalCoord(coord):
-
-    #make sure we have a tuple or list with two elements in it
+    # make sure we have a tuple or list with two elements in it
     try:
         if (len(coord) != 2):
             return False
@@ -37,7 +37,7 @@ def legalCoord(coord):
 
     x = coord[0]
     y = coord[1]
-    return ( (x >= 0) and (x <= 9) and (y >= 0) and (y <= 9))
+    return ((x >= 0) and (x <= 9) and (y >= 0) and (y <= 9))
 
 
 ##
@@ -52,23 +52,22 @@ def legalCoord(coord):
 #     types - a tuple of all the ant types wanted (see Constants.py)
 #
 def getAntList(currentState,
-               pid = None,
-               types = (QUEEN, WORKER, DRONE, SOLDIER, R_SOLDIER) ):
-
-    #start with a list of all ants that belong to the indicated player(s)
+               pid=None,
+               types=(QUEEN, WORKER, DRONE, SOLDIER, R_SOLDIER)):
+    # start with a list of all ants that belong to the indicated player(s)
     allAnts = []
     for inv in currentState.inventories:
         if (pid == None) or (pid == inv.player):
             allAnts += inv.ants
 
-    #fill the result with ants that are of the right type
+    # fill the result with ants that are of the right type
     result = []
     for ant in allAnts:
         if ant.type in types:
             result.append(ant)
 
     return result
-        
+
 
 ##
 # getConstrList()
@@ -85,23 +84,22 @@ def getAntList(currentState,
 #     types - a tuple of all the constr types wanted (see Constants.py)
 #
 def getConstrList(currentState,
-                  pid = None,
-                  types = (ANTHILL, TUNNEL, GRASS, FOOD) ):
-
-    #start with a list of all constrs that belong to the indicated player(s)
+                  pid=None,
+                  types=(ANTHILL, TUNNEL, GRASS, FOOD)):
+    # start with a list of all constrs that belong to the indicated player(s)
     allConstrs = []
     for inv in currentState.inventories:
         if (pid == None) or (pid == inv.player):
             allConstrs += inv.constrs
 
-    #fill the result with constrs that are of the right type
+    # fill the result with constrs that are of the right type
     result = []
     for constr in allConstrs:
         if constr.type in types:
             result.append(constr)
 
     return result
-        
+
 
 ##
 # getConstrAt
@@ -114,15 +112,16 @@ def getConstrList(currentState,
 #
 # Return:  the construct at the coordinate or None if there is none
 def getConstrAt(state, coords):
-    #get a list of all constructs
+    # get a list of all constructs
     allConstrs = getConstrList(state)
 
-    #search for one at the given coord
+    # search for one at the given coord
     for constr in allConstrs:
         if (constr.coords == coords):
             return constr
 
-    return None  #not found
+    return None  # not found
+
 
 ##
 # getAntAt
@@ -135,16 +134,16 @@ def getConstrAt(state, coords):
 #
 # Return:  the ant at the coordinate or None if there is none
 def getAntAt(state, coords):
-    #get a list of all constructs
+    # get a list of all constructs
     allAnts = getAntList(state)
 
-    #search for one at the given coord
+    # search for one at the given coord
     for ant in allAnts:
         if (ant.coords == coords):
             return ant
 
-    return None  #not found
-    
+    return None  # not found
+
 
 ##
 # listAdjacent
@@ -155,22 +154,22 @@ def getAntAt(state, coords):
 # Return: a list of all legal coords that are adjacent to the given space
 #
 def listAdjacent(coord):
-    #catch invalid inputs
+    # catch invalid inputs
     if (not legalCoord(coord)):
         return [];
 
-    #this set of coord deltas represent movement in each cardinal direction
-    deltas = [ (-1, 0), (1, 0), (0, -1), (0, 1) ]
+    # this set of coord deltas represent movement in each cardinal direction
+    deltas = [(-1, 0), (1, 0), (0, -1), (0, 1)]
     x = coord[0]
     y = coord[1]
     result = []
 
-    #calculate the cost after making each move
+    # calculate the cost after making each move
     for delta in deltas:
         newX = delta[0] + coord[0]
         newY = delta[1] + coord[1]
 
-        #skip illegal moves
+        # skip illegal moves
         if (not legalCoord((newX, newY))):
             continue
 
@@ -185,27 +184,28 @@ def listAdjacent(coord):
 # calculates all the adjacent cells that can be reached from a given coord.
 #
 # Parameters:
-#    state        - a GameState object 
+#    state        - a GameState object
 #    coords       - where the ant is
 #    movement     - movement points the ant has
 #
-# Return:  a list of coords (tuples)   
+# Return:  a list of coords (tuples)
 def listReachableAdjacent(state, coords, movement):
-    #build a list of all adjacent cells
+    # build a list of all adjacent cells
     oneStep = listAdjacent(coords)
 
-    #winnow the list based upon cell contents and cost to reach
+    # winnow the list based upon cell contents and cost to reach
     candMoves = []
     for cell in oneStep:
         ant = getAntAt(state, cell)
         constr = getConstrAt(state, cell)
-        moveCost = 1  #default cost
+        moveCost = 1  # default cost
         if (constr != None):
             moveCost = CONSTR_STATS[constr.type][MOVE_COST]
         if (ant == None) and (moveCost <= movement):
             candMoves.append(cell)
 
     return candMoves
+
 
 ##
 # listAllMovementPaths              <!-- RECURSIVE -->
@@ -223,38 +223,38 @@ def listReachableAdjacent(state, coords, movement):
 # Return: a list of lists of coords (tuples). Each sub-list of tuples is an
 # acceptable set of coords for a Move object
 def listAllMovementPaths(currentState, coords, movement):
-    #base case: ant can't move any further
+    # base case: ant can't move any further
     if (movement <= 0): return []
 
-    #construct a list of all valid one-step moves
+    # construct a list of all valid one-step moves
     adjCells = listReachableAdjacent(currentState, coords, movement)
     oneStepMoves = []
     for cell in adjCells:
         oneStepMoves.append([coords, cell])
 
-    #add those as valid moves
+    # add those as valid moves
     validMoves = list(oneStepMoves)
 
-    #recurse for each adj cell to see if we can take additional steps
+    # recurse for each adj cell to see if we can take additional steps
     for move in oneStepMoves:
-        #figure out what it would cost to get to the current dest
+        # figure out what it would cost to get to the current dest
         moveCoords = move[-1]
         constrAtDest = getConstrAt(currentState, moveCoords)
-        cost = 1   #default
+        cost = 1  # default
         if constrAtDest != None:
             cost = CONSTR_STATS[constrAtDest.type][MOVE_COST]
 
-        #get a list of all moves that will extend this one
+        # get a list of all moves that will extend this one
         extensions = listAllMovementPaths(currentState, moveCoords, movement - cost)
 
-        #create new moves by adding each extension to the base move
+        # create new moves by adding each extension to the base move
         for ext in extensions:
-            newMove = list(move)      #create a clone
-            for cell in ext[1:]:      #start at index '1' to skip overlap
+            newMove = list(move)  # create a clone
+            for cell in ext[1:]:  # start at index '1' to skip overlap
                 newMove.append(cell)
             validMoves.append(newMove)
 
-    #Append the zero-step move (used to activate attack on adjacent foe)
+    # Append the zero-step move (used to activate attack on adjacent foe)
     validMoves.append([coords])
 
     return validMoves
@@ -266,52 +266,53 @@ def listAllMovementPaths(currentState, coords, movement):
 # calculates the shortest distance between two cells taking
 # movement costs into account.
 #
-#Parameters:
+# Parameters:
 #   currentState   - The state of the game (GameState)
 #   src            - starting position (an x,y coord)
 #   dst            - destination position (an x,y coord)
 #
 # Return: the costs in steps (an integer) or -1 on invalid input
 def stepsToReach(currentState, src, dst):
-    #check for invalid input
+    # check for invalid input
     if (not legalCoord(src)): return -1
     if (not legalCoord(dst)): return -1
 
-    #a dictionary of already visted cells and the corresponding cost to reach
-    visited = { src : 0 }
-    #a list of to be processed cells
-    queue = [ src ]
+    # a dictionary of already visted cells and the corresponding cost to reach
+    visited = {src: 0}
+    # a list of to be processed cells
+    queue = [src]
 
-    #this loops processes cells in the queue until it is empty
-    while(len(queue) > 0):
+    # this loops processes cells in the queue until it is empty
+    while (len(queue) > 0):
         cell = queue.pop(0)
 
-        #if this cell is our destination we are done
+        # if this cell is our destination we are done
         if (cell == dst):
             return visited[cell]
 
-        #calc distance to all cells adj to this one assuming we reach them
-        #from this one
+        # calc distance to all cells adj to this one assuming we reach them
+        # from this one
         nextSteps = listAdjacent(cell)
         for newCell in nextSteps:
             constrAtDest = getConstrAt(currentState, newCell)
-            cost = 1  #default
+            cost = 1  # default
             if constrAtDest != None:
                 cost = CONSTR_STATS[constrAtDest.type][MOVE_COST]
             dist = visited[cell] + cost
 
-            #if the new distance is best so far, update the visited dict
+            # if the new distance is best so far, update the visited dict
             if (visited.has_key(newCell)):
                 if (dist < visited[newCell]):
                     visited[newCell] = dist
-            #if we've never seen this cell before also update dict and
-            #enqueue this new cell to be processed at a future loop iteration
+            # if we've never seen this cell before also update dict and
+            # enqueue this new cell to be processed at a future loop iteration
             else:
                 visited[newCell] = dist
                 queue.append(newCell)
 
-    #we should never reach this point
+    # we should never reach this point
     return -1
+
 
 ##
 # approxDist
@@ -319,13 +320,14 @@ def stepsToReach(currentState, src, dst):
 # gives an approximate distance between two cells.  This method is much faster
 # than stepsToReach but does not take grass and other ants into account
 #
-#Parameters:
+# Parameters:
 #   sourceCoords - starting position (an x,y coord)
 #   targetCoords - destination position (an x,y coord)
 #
 # Return: the approximate distance (an integer)
 def approxDist(sourceCoords, targetCoords):
-	return abs(sourceCoords[0]-targetCoords[0]) + abs(sourceCoords[1]-targetCoords[1])
+    return abs(sourceCoords[0] - targetCoords[0]) + abs(sourceCoords[1] - targetCoords[1])
+
 
 ##
 # createPathToward
@@ -346,33 +348,34 @@ def createPathToward(currentState, sourceCoords, targetCoords, movement):
     path = [sourceCoords]
     curr = sourceCoords
 
-    #keep adding steps to the path until movement runs out 
+    # keep adding steps to the path until movement runs out
     while (movement > 0):
-        found = False  #was a new step found to add to the path
+        found = False  # was a new step found to add to the path
         for coord in listReachableAdjacent(currentState, sourceCoords, movement):
-            #is this a step headed in the right direction?
+            # is this a step headed in the right direction?
             if (approxDist(coord, targetCoords) < distToTarget):
 
-                #how much movement does it cost to get there?
+                # how much movement does it cost to get there?
                 constr = getConstrAt(currentState, coord)
-                moveCost = 1  #default cost
+                moveCost = 1  # default cost
                 if (constr != None):
                     moveCost = CONSTR_STATS[constr.type][MOVE_COST]
-                #if I have enough movement left then add it to the path
+                # if I have enough movement left then add it to the path
                 if (moveCost <= movement):
-                    #add the step to the path
+                    # add the step to the path
                     found = True
                     path.append(coord)
 
-                    #restart the search from the new coordinate
+                    # restart the search from the new coordinate
                     movement = movement - moveCost
                     sourceCoords = coord
                     distToTarget = approxDist(sourceCoords, targetCoords)
                     break
-        if (not found): break #no usable steps found
+        if (not found): break  # no usable steps found
 
     return path
-        
+
+
 ##
 # listAllBuildMoves
 #
@@ -386,43 +389,44 @@ def createPathToward(currentState, sourceCoords, targetCoords, movement):
 def listAllBuildMoves(currentState):
     result = []
 
-    #if the anthill is unoccupied list a BUILD move for each ant
-    #that there is enough food to build
+    # if the anthill is unoccupied list a BUILD move for each ant
+    # that there is enough food to build
     myInv = getCurrPlayerInventory(currentState)
     hill = myInv.getAnthill()
-    if (getAntAt(currentState, hill.coords)  == None):
+    if (getAntAt(currentState, hill.coords) == None):
         for type in range(WORKER, R_SOLDIER + 1):
             cost = UNIT_STATS[type][COST]
             if (cost <= myInv.foodCount):
                 result.append(Move(BUILD, [hill.coords], type))
 
-    #if we don't have 3 food to build a tunnel then we're done
+    # if we don't have 3 food to build a tunnel then we're done
     if (myInv.foodCount < 3):
         return result
-                
-    #for each worker ant that is a legal position, you could build
-    #a tunnel
+
+    # for each worker ant that is a legal position, you could build
+    # a tunnel
     for ant in myInv.ants:
-        if (ant.type != WORKER): continue   #only workers can build tunnels
-        if (ant.hasMoved): continue         #this worker has already moved
+        if (ant.type != WORKER): continue  # only workers can build tunnels
+        if (ant.hasMoved): continue  # this worker has already moved
         if (getConstrAt(currentState, ant.coords) == None):
-            #see if there is adj food
-            inTheClear = True   #assume ok to build until proven otherwise
+            # see if there is adj food
+            inTheClear = True  # assume ok to build until proven otherwise
             for coord in listAdjacent(ant.coords):
-                if (not legalCoord((coord[0],coord[1]))):
+                if (not legalCoord((coord[0], coord[1]))):
                     continue
 
-                #is there food here?
+                # is there food here?
                 constrHere = getConstrAt(currentState, coord)
                 if (constrHere != None) and (constrHere.type == FOOD):
                     inTheClear = False
                     break
 
-            #if no food was found then building a tunnel is valid
+            # if no food was found then building a tunnel is valid
             if inTheClear:
                 result.append(Move(BUILD, [ant.coords], TUNNEL))
 
     return result
+
 
 ##
 # isPathOkForQueen
@@ -431,7 +435,7 @@ def listAllBuildMoves(currentState):
 # territory.  The caller is responsible for providing a legal path.
 # This is a helper method for listAllMovementMoves
 #
-#Parameters:
+# Parameters:
 #   path - the path to check
 #
 # Return: True if the is okay
@@ -439,10 +443,11 @@ def listAllBuildMoves(currentState):
 def isPathOkForQueen(path):
     for coord in path:
         if (coord[1] == BOARD_LENGTH / 2 - 1) \
-        or (coord[1] == BOARD_LENGTH / 2):
+                or (coord[1] == BOARD_LENGTH / 2):
             return False
     return True
-    
+
+
 ##
 # listAllMovementMoves
 #
@@ -456,18 +461,18 @@ def isPathOkForQueen(path):
 def listAllMovementMoves(currentState):
     result = []
 
-    #first get all MOVE_ANT moves for each ant in the inventory
+    # first get all MOVE_ANT moves for each ant in the inventory
     myInv = getCurrPlayerInventory(currentState)
     for ant in myInv.ants:
-        #skip ants that have already moved
+        # skip ants that have already moved
         if (ant.hasMoved): continue
 
-        #create a Move object for each valid movement path
+        # create a Move object for each valid movement path
         allPaths = listAllMovementPaths(currentState,
                                         ant.coords,
                                         UNIT_STATS[ant.type][MOVEMENT])
 
-        #remove moves that take the queen out of her territory
+        # remove moves that take the queen out of her territory
         if (ant.type == QUEEN):
             tmpList = []
             for path in allPaths:
@@ -475,7 +480,7 @@ def listAllMovementMoves(currentState):
                     tmpList.append(path)
             allPaths = tmpList
 
-        #construct the list of moves using the paths
+        # construct the list of moves using the paths
         for path in allPaths:
             result.append(Move(MOVE_ANT, path, None))
 
@@ -500,29 +505,53 @@ def listAllLegalMoves(currentState):
     return result
 
 
-
 ##
 # Return: a reference to the inventory of the player whose turn it is
 def getCurrPlayerInventory(currentState):
-    #Get my inventory
+    # Get my inventory
     resultInv = None
     for inv in currentState.inventories:
         if inv.player == currentState.whoseTurn:
             resultInv = inv
             break
-        
+
     return resultInv
-    
+
+
 ##
 # Return: a reference to the QUEEN of the player whose turn it is
 def getCurrPlayerQueen(currentState):
-    #find the queen
+    # find the queen
     queen = None
     for inv in currentState.inventories:
         if inv.player == currentState.whoseTurn:
             queen = inv.getQueen()
             break
     return queen
+
+
+##
+# Return: a list of the food objects on my side of the board
+def getCurrPlayerFood(self, currentState):
+    food = getConstrList(currentState, None, (FOOD,))
+    myFood = []
+    if (currentState.inventories[0].player == currentState.whoseTurn):
+        myFood.append(food[2])
+        myFood.append(food[3])
+    else:
+        myFood.append(food[0])
+        myFood.append(food[1])
+    return myFood
+
+
+##
+# Return: a reference to my enemy's inventory
+def getEnemyInv(self, currentState):
+    if (currentState.inventories[0].player == currentState.whoseTurn):
+        return currentState.inventories[1]
+    else:
+        return currentState.inventories[0]
+
 
 ##
 # getNextState
@@ -627,6 +656,7 @@ def getNextState(currentState, move):
                             break
     return myGameState
 
+
 ##
 # getNextStateAdversarial
 #
@@ -654,10 +684,10 @@ def getNextStateAdversarial(currentState, move):
     elif move.moveType == END:
         for ant in myAnts:
             ant.hasMoved = False
-        currentState.whoseTurn = 1 - currentState.whoseTurn;
+        nextState.whoseTurn = 1 - currentState.whoseTurn;
     return nextState
 
-    
+
 ##
 # returns a character representation of a given ant
 # (helper for asciiPrintState)
@@ -677,6 +707,7 @@ def charRepAnt(ant):
     else:
         return "?"
 
+
 ##
 # returns a character representation of a given construct
 # (helper for asciiPrintState)
@@ -693,6 +724,7 @@ def charRepConstr(constr):
         return "%"
     else:
         return "?"
+
 
 ##
 # returns a character representation of a given location
@@ -718,17 +750,17 @@ def charRepLoc(loc):
 #    state - the state to print
 #
 def asciiPrintState(state):
-    #select coordinate ranges such that board orientation will match the GUI
-    #for either player
-    coordRange = range(0,10)
+    # select coordinate ranges such that board orientation will match the GUI
+    # for either player
+    coordRange = range(0, 10)
     colIndexes = " 0123456789"
     if (state.whoseTurn == PLAYER_TWO):
-        coordRange = range(9,-1,-1)
+        coordRange = range(9, -1, -1)
         colIndexes = " 9876543210"
 
-    #print the board with a border of column/row indexes
+    # print the board with a border of column/row indexes
     print colIndexes
-    index = 0              #row index
+    index = 0  # row index
     for x in coordRange:
         row = str(x)
         for y in coordRange:
@@ -745,7 +777,7 @@ def asciiPrintState(state):
         index += 1
     print colIndexes
 
-    #print food totals
+    # print food totals
     p1Food = state.inventories[0].foodCount
     p2Food = state.inventories[1].foodCount
     print " food: " + str(p1Food) + "/" + str(p2Food)
