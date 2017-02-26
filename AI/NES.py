@@ -21,6 +21,7 @@ from AIPlayerUtils import *
 #   playerId - The id of the player.
 #
 # @authors Noah Sperling, Eric Imperio, Sean Tollisen
+# revised for HW3 by Noah Sperling and Justin Hathaway
 #
 # @version 02/13/2017 version 3.14159265358979323846264338327950288419716939937510
 ##
@@ -167,7 +168,7 @@ class AIPlayer(Player):
     # Return
     #   returns a move object
     ##
-    def move_search(self, game_state, curr_depth):
+    def move_search(self, game_state, curr_depth, parent_eval):
 
         #if max depth surpassed, return state evaluation
         if curr_depth == self.max_depth + 1:
@@ -199,7 +200,7 @@ class AIPlayer(Player):
 
         best_ten = []
 
-        for i in range (0, 2): #temporary
+        for i in range(0, 5): # temporary
             if not len(node_list) == 0 and not i >= len(node_list):
                 if(node_list[i][0].whoseTurn == self.me):
                     best_ten.append(node_list.pop())
