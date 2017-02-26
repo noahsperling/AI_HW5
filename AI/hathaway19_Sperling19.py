@@ -13,16 +13,13 @@ from AIPlayerUtils import *
 
 ##
 # AIPlayer
-# Description: This class uses A* search with pruning to search for the best next move based
-# on the evaluate_state heuristic function.
+# Description: This class uses Minimax with Alpha/Beta pruning to search for the best move
+# based on the evaluate_state heuristic function
+# Assignment: Homework #3: Minimax AI
 #
+# Due Date: February 27th, 2017
 #
-# Variables:
-#   playerId - The id of the player.
-#
-# @authors Noah Sperling, Eric Imperio, Sean Tollisen
-#
-# @version 02/13/2017 version 3.14159265358979323846264338327950288419716939937510
+# @names: Noah Sperling, Justin Hathaway
 ##
 class AIPlayer(Player):
 
@@ -47,7 +44,6 @@ class AIPlayer(Player):
     #whether or not the playerID has been set up yet
     me_set_up = False
 
-
     # __init__
     # Description: Creates a new Player
     #
@@ -55,12 +51,13 @@ class AIPlayer(Player):
     #   inputPlayerId - The id to give the new player (int)
     ##
     def __init__(self, inputPlayerId):
-        super(AIPlayer, self).__init__(inputPlayerId, "NessieUpdatedNumberTest")
+        super(AIPlayer, self).__init__(inputPlayerId, "miniAI")
 
+    # Method to create a node containing the state, evaluation, move, current depth,
+    # the parent node, and the index
     def create_node(self, state, evaluation, move, current_depth, parent_index, index):
         node = [state, evaluation, move, current_depth, parent_index, index]
         self.node_list.append(node)
-
 
     ##
     # getPlacement
@@ -140,7 +137,6 @@ class AIPlayer(Player):
         else:
             return Move(END, None, None)
 
-
     ##
     # getAttack
     # Description: Gets the attack to be made from the Player
@@ -152,7 +148,8 @@ class AIPlayer(Player):
     ##
     def getAttack(self, currentState, attackingAnt, enemyLocations):
         # Attack a random enemy.
-        return enemyLocations[0]
+        return enemyLocations[random.randint(0, len(enemyLocations) - 1)]
+        #return enemyLocations[0]
 
 
     ##
@@ -295,38 +292,42 @@ class AIPlayer(Player):
     #   state - the GameState object to evaluate
     #
     # Return
-    #   a number between 0 and 1 inclusive
+    #   a double between 0 and 1 inclusive
     ##
     def evaluate_state(self, state):
-        #return 0.5
+        # The AI's player ID
+        me = state.whoseTurn
+        # The opponent's ID
+        enemy = (state.whoseTurn + 1) % 2
+
+        # Get a reference to the player's inventory
+        my_inv = state.inventories[state.whoseTurn]
+        # Get a reference to the enemy player's inventory
+        enemy_inv = state.inventories[(state.whoseTurn + 1) % 2]
+
+        # Gets both the player's queens
+        my_queen = getAntList(state, me, (QUEEN,))
+        enemy_queen = getAntList(state, enemy, (QUEEN,))
+
+        # Sees if winning or loosing conditions are already met
+        if (my_inv.foodCount == 11) or (enemy_queen is None):
+            return 1
+        if (enemy_inv.foodCount == 11) or (my_queen is None):
+            return 0
 
         #the starting value, not winning or losing
         eval = 0.0
 
-        #the AIs player ID
-        me = state.whoseTurn
-
-        #the inventories of this AI and the enemy
-        my_inv = None
-        enemy_inv = None
-
         #important number
         worker_count = 0
         drone_count = 0
-
-        #sets up the inventories
-        if state.inventories[0].player == me:
-            my_inv = state.inventories[0]
-            enemy_inv = state.inventories[1]
-        else:
-            my_inv = state.inventories[1]
-            enemy_inv = state.inventories[0]
 
         food_coords = []
         enemy_food_coords = []
 
         foods = getConstrList(state, None, (FOOD,))
 
+        # Gets a list of all of the food coords
         for food in foods:
             if food.coords[1] < 5:
                 food_coords.append(food.coords)
@@ -460,12 +461,6 @@ class AIPlayer(Player):
         #assesses food
         if not sEval == 0:
             sEval += 20 * my_inv.foodCount
-
-        #assesses losing conditions relevant to this AI
-        if my_inv.foodCount == 11:
-            return 1
-        if enemy_inv.foodCount == 11:
-            return 0
 
         #a temporary variable
         temp = 0
