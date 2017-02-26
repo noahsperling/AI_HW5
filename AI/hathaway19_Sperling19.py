@@ -51,7 +51,7 @@ class AIPlayer(Player):
     #   inputPlayerId - The id to give the new player (int)
     ##
     def __init__(self, inputPlayerId):
-        super(AIPlayer, self).__init__(inputPlayerId, "miniAI")
+        super(AIPlayer, self).__init__(inputPlayerId, "theMiniAI")
 
     # Method to create a node containing the state, evaluation, move, current depth,
     # the parent node, and the index
