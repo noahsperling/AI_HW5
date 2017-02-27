@@ -130,7 +130,7 @@ class AIPlayer(Player):
             self.me = currentState.whoseTurn
 
         #searches for best move
-        selectedMove = self.move_search(currentState, 0)
+        selectedMove = self.move_search(currentState, 0, -(float)("inf"), (float)("inf"))
 
         #if not None, return move, if None, end turn
         if not selectedMove == None:
@@ -156,16 +156,18 @@ class AIPlayer(Player):
     ##
     # move_search - recursive
     #
-    # uses A* search with pruning to search for best next move
+    # uses Minimax with alpha beta pruning to search for best next move
     #
     # Parameters:
     #   game_state - current state
     #   curr_depth - current search depth
+    #   alpha      - the parent node's alpha value
+    #   beta       - the previous node's beta value
     #
     # Return
     #   returns a move object
     ##
-    def move_search(self, game_state, curr_depth, parent_eval):
+    def move_search(self, game_state, curr_depth, alpha, beta):
 
         #if max depth surpassed, return state evaluation
         if curr_depth == self.max_depth + 1:
@@ -174,8 +176,9 @@ class AIPlayer(Player):
         #list all legal moves
         move_list = listAllLegalMoves(game_state)
 
-        #remove end turn move
-        move_list.pop()
+        #remove end turn move if the list isn't empty
+        if not len(move_list) == 1:
+            move_list.pop()
 
         # list of nodes, which contain the state, move, and eval
         node_list = []
@@ -192,41 +195,48 @@ class AIPlayer(Player):
 
         self.mergeSort(node_list)
 
-        #for node in node_list:
-            #print(node[2])
+        if not self.me == game_state.whoseTurn:
+            move_list.reverse()
 
-        best_ten = []
+        best_nodes = []
 
         for i in range(0, 5): # temporary
-            if not len(node_list) == 0 and not i >= len(node_list):
-                if(node_list[i][0].whoseTurn == self.me):
-                    best_ten.append(node_list.pop())
-                else:
-                    if i < len(node_list):
-                        best_ten.append(node_list.index(i))
+            if not len(node_list) == 0:
+                best_nodes.append(node_list.pop())
 
 
 
-        best_val = -1
+        #best_val = -1
 
         #if not at the max depth, expand all the nodes in node_list and return
         if curr_depth <= self.max_depth:
-            for node in best_ten:
-                best_val = self.move_search(node[0], curr_depth + 1)
+            for node in best_nodes:
+                score = self.move_search(node[0], curr_depth + 1, alpha, beta)
                 if game_state.whoseTurn == self.me:
-                    if best_val > node[2]:
-                        node[2] = best_val
+                    if score > alpha:
+                        alpha = score
+                    if alpha >= beta:
+                        #print("Pruned")
+                        break
                 else:
-                    if best_val < node[2]:
-                        node[2] = best_val
+                    if score < beta:
+                        beta = score
+                    if alpha >= beta:
+                        #print("Pruned")
+                        break
 
-        if not curr_depth == 0:
-            return best_val
+
+
+        #if not curr_depth == 0:
+        if game_state.whoseTurn == self.me and not curr_depth == 0:
+            return alpha
+        elif not game_state == self.me and not curr_depth == 0:
+            return beta
         else:
             best_eval = -1
             best_node = []
 
-            for node in best_ten:
+            for node in best_nodes:
                 if node[2] > best_eval:
                     best_eval = node[2]
                     best_node = node
