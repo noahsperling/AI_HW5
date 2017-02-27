@@ -149,8 +149,7 @@ class AIPlayer(Player):
     ##
     def getAttack(self, currentState, attackingAnt, enemyLocations):
         # Attack a random enemy.
-        return enemyLocations[random.randint(0, len(enemyLocations) - 1)]
-        #return enemyLocations[0]
+        return enemyLocations[0]
 
 
     ##
@@ -322,9 +321,9 @@ class AIPlayer(Player):
 
         # Sees if winning or loosing conditions are already met
         if (my_inv.foodCount == 11) or (enemy_queen is None):
-            return 1
+            return 1.0
         if (enemy_inv.foodCount == 11) or (my_queen is None):
-            return 0
+            return 0.0
 
         #the starting value, not winning or losing
         eval = 0.0
