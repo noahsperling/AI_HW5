@@ -13,7 +13,7 @@ from AIPlayerUtils import *
 
 ##
 # AIPlayer
-# Description: This class uses Minimax with Alpha/Beta pruning to search for the best move
+# Description: This AI player uses Minimax with Alpha/Beta pruning to search for the best move
 # based on the evaluate_state heuristic function
 # Assignment: Homework #3: Minimax AI
 #
