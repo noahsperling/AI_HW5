@@ -1,0 +1,20 @@
+Input Values for Neural Network:
+    - food count AI
+    - food count enemy
+    - queen health
+    - drone count
+    - worker count
+    - worker 1 carrying
+    - worker 2 carrying
+    - worker 1 distance
+    - worker 2 distance
+    - drone distance
+    - drone distance
+    - queen distance
+    - queen on anthill/tunnel/food
+    - queen distance from closest enemy
+
+Questions for Nuxoll:
+    - using matrices to simulate the neural network
+    - layout, how much it matters
+
