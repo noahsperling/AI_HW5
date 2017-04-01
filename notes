@@ -14,6 +14,13 @@ Input Values for Neural Network:
     - queen on anthill/tunnel/food
     - queen distance from closest enemy
 
+These are now currently incorrect
+
+There are 12 inputs.  The second layer has 9 neurons ((12 + 1) * (2 / 3) rounds to 9). Finally, the last layer has one.
+
+So, the input matrix is 12 x 1.  The second weight matrix is 9 x 12.  The third weight matrix is 1 x 9.  The resulting
+1 x 1 matrix is then sent through the last neuron and gives the output.
+
 Questions for Nuxoll:
     - using matrices to simulate the neural network
     - layout, how much it matters
