@@ -52,12 +52,12 @@ class AIPlayer(Player):
                                      [0.1, -0.89, 1.456, 2.013, 0.564, -2.136, 1.789, -0.2, -0.1, 1.03, 0.745, 1.111],
                                      [-2.0, -2.1, 1.023, 0.654, 0.213, -0.5, 0.7, 0.645, 1.236, 2.1, -1.111, 1.756],
                                      [-1.54, 2.113, 0.215, -0.555, -0.721, -1.231, 1.45, -0.2, 1.98, -0.89, -0.7, 1.0],
-                                     [, , , , , , , , , , , ],
-                                     [, , , , , , , , , , , ],
-                                     [, , , , , , , , , , , ],
-                                     [, , , , , , , , , , , ]])
+                                     [0.1, -0.1, 0.23, -0.23, 1.69, 1.420, 2.003, 0.001, 0.592, -0.25, 0.75, 1.0],
+                                     [-0.125, 1.1, -0.8, 0.9, 2.131, -2.138, 0.141, 0.56, 1.7, 0.9, 2.0, -2.0],
+                                     [1.0, -2.1, 1.45, -0.2, 1.0, 1.1, -0.5, -0.6, -0.7, -0.8, 2.0, 1.1],
+                                     [1.1, 0.7, -0.2, 0.9, 1.9, -0.987, -1.2, 2.1, -1.75, 0.4, -1.352, 0.312]])
     # the matrix of weights from the first layer to the output layer
-    second_weight_matrix = np.matrix([[, , , , , , , ,]])
+    second_weight_matrix = np.matrix([[3.0984, 1.21, -2.15, 0.6, 1.212, -2.56, -2.0, 1.105, -3.0984]])
 
 
     # __init__
@@ -697,6 +697,35 @@ class AIPlayer(Player):
 
         input = self.generate_input_matrix(state)
 
+        first_layer_input = np.matmul(self.first_weight_matrix, input)
+
+        temp_list = []
+
+        for x in np.nditer(first_layer_input):
+            temp_list.append(self.g(x))
+
+        first_layer_output = np.matrix([[temp_list[0]], [temp_list[1]], [temp_list[2]], [temp_list[3]], [temp_list[4]],
+                                        [temp_list[5]], [temp_list[6]], [temp_list[7]], [temp_list[8]]])
+
+        second_layer_input = np.matmul(self.second_weight_matrix, first_layer_output)
+
+        second_layer_output = self.g(second_layer_input)
+
+        # this is bad code but I'm still new to numpy and it should work
+
+        output = 0
+
+        for y in np.nditer(second_layer_output):
+            output += y
+            break
+
+        print output
+
+        error = h_eval - output
+
+        print "Error:", error
+
+        return second_layer_output
 
 
     ##
