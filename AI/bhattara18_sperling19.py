@@ -1,5 +1,7 @@
 import random
 import sys
+import numpy as np
+
 
 sys.path.append("..")  # so other modules can be found in parent dir
 from Player import *
@@ -502,7 +504,176 @@ class AIPlayer(Player):
         if eval <= 0:
             eval = 0.00002
 
+        self.generate_input_matrix(state, eval)
+
         return eval
+
+
+    ##
+    # neural_network_eval
+    #
+    # learns to evaluate a gamestate by comparing it's score to the evaluation from the hauristic
+    #
+    # Parameters
+    #   state - the gamestate object to assess
+    #   h_eval - the heuristic function's evaluation of the state
+    #          - to be ignored after training
+    #
+    # Return:
+    #   returns a double between zero and one
+    #
+    ##
+    def generate_input_matrix(self, state, h_eval):
+
+        # food inventory numbers
+        player_food = 0
+        enemy_food = 0
+
+        # queen info
+        queen_health = 0
+        queen_dist_to_closest_enemy = 0
+        queen_on_construct_not_grass = 0
+        queen_in_rows_0_or_1 = 0
+
+        # worker info
+        worker_count = 0
+        num_carrying = 0
+        w_distance_to_move = 0
+        distance_to_food = 0
+
+        # drone info
+        drone_count = 0
+        d_distance_to_move = 0
+
+        # The AI's player ID
+        me = state.whoseTurn
+        # The opponent's ID
+        enemy = (state.whoseTurn + 1) % 2
+
+        # Get a reference to the player's inventory
+        my_inv = state.inventories[me]
+        # Get a reference to the enemy player's inventory
+        enemy_inv = state.inventories[enemy]
+
+        # Gets both the player's queens
+        my_queen = getAntList(state, me, (QUEEN,))
+        enemy_queen = getAntList(state, enemy, (QUEEN,))
+
+        player_food += my_inv.foodCount
+        enemy_food += enemy_inv.foodCount
+
+        food_coords = []
+        enemy_food_coords = []
+
+        foods = getConstrList(state, None, (FOOD,))
+
+        # Gets a list of all of the food coords
+        for food in foods:
+            if food.coords[1] < 5:
+                food_coords.append(food.coords)
+            else:
+                enemy_food_coords.append(food.coords)
+
+        # coordinates of this AI's tunnel
+        tunnel = my_inv.getTunnels()
+        t_coords = tunnel[0].coords
+
+        # coordinates of this AI's anthill
+        ah_coords = my_inv.getAnthill().coords
+
+        # iterates through ants and scores positioning
+        for ant in my_inv.ants:
+
+            # scores queen
+            if ant.type == QUEEN:
+
+                # if queen is on anthill, tunnel, or food it's bad
+                if ant.coords == ah_coords or ant.coords == t_coords or ant.coords == food_coords[0] or ant.coords == \
+                        food_coords[1]:
+                    queen_on_construct_not_grass += 1
+
+                # if queen is out of rows 0 or 1 it's bad
+                if ant.coords[0] > 1:
+                    queen_in_rows_0_or_1 += 1
+
+                # the father from enemy ants, the better
+                queen_dist_to_closest_enemy += self.get_closest_enemy_dist(ant.coords, enemy_inv.ants)
+
+            # scores worker to incentivize food gathering
+            elif ant.type == WORKER:
+
+                # tallies up workers
+                worker_count += 1
+
+                # if carrying, the closer to the anthill or tunnel, the better
+                if ant.carrying:
+
+                    # distance to anthill
+                    ah_dist = approxDist(ant.coords, ah_coords)
+
+                    # distance to tunnel
+                    t_dist = approxDist(ant.coords, t_coords)
+
+                    # finds closest and scores
+                    # if ant.coords == ah_coords or ant.coords == t_coords:
+                    # print("PHill")
+                    # eval += 100000000
+                    if t_dist < ah_dist:
+                        w_distance_to_move += t_dist
+                    else:
+                        w_distance_to_move += ah_dist
+
+                # if not carrying, the closer to food, the better
+                else:
+
+                    # distance to foods
+                    f1_dist = approxDist(ant.coords, food_coords[0])
+                    f2_dist = approxDist(ant.coords, food_coords[1])
+
+                    # finds closest and scores
+                    # if ant.coords == food_coords[0] or ant.coords == food_coords[1]:
+                    # print("PFood")
+                    # eval += 500
+
+                    if f1_dist < f2_dist:
+                        w_distance_to_move += f1_dist
+                    else:
+                        w_distance_to_move += f2_dist
+
+                        # the father from enemy ants, the better
+                        # eval += -5 + self.get_closest_enemy_dist(ant.coords, enemy_inv.ants)
+
+            # scores soldiers to incentivize the disruption of the enemy economy
+            else:
+
+                # tallies up soldiers
+                drone_count += 1
+
+                nearest_enemy_worker_dist = self.get_closest_enemy_worker_dist(ant.coords, enemy_inv.ants)
+
+                # if there is an enemy worker
+                if not nearest_enemy_worker_dist == 100:
+                    d_distance_to_move += nearest_enemy_worker_dist
+
+                # if there isn't an enemy worker, go to the food
+                else:
+                    d_distance_to_move += self.get_closest_enemy_food_dist(ant.coords, enemy_food_coords)
+
+        print(player_food, enemy_food, queen_health, queen_dist_to_closest_enemy, queen_on_construct_not_grass,
+              queen_in_rows_0_or_1, worker_count, num_carrying, w_distance_to_move, distance_to_food, drone_count,
+              d_distance_to_move)
+
+    ##
+    # g(x)
+    #
+    # Parameters
+    #   x - number to input to sigmoid function
+    #
+    # Return
+    #   returns the output value of the sigmoid function
+    ##
+    def g(self, x):
+        return 1 / (1 + np.exp(-x))
 
     ##
     # merge_sort
@@ -541,37 +712,37 @@ class AIPlayer(Player):
                 k = k + 1
 
 
-#unit tests
-testPlayer = AIPlayer(PLAYER_ONE)
+# unit tests
+# testPlayer = AIPlayer(PLAYER_ONE)
 #test get_closest_enemy_dist
-testAntList = [Ant((2,4), 4, None), Ant((3,5), 2, None), Ant((2,5), 3, None), Ant((2,2), 1, None)]
-val = AIPlayer.get_closest_enemy_dist(testPlayer, (2,1), testAntList)
-assert (AIPlayer.get_closest_enemy_dist(testPlayer, (2,1), testAntList)==3), "get_closest_enemy_dist isn't working right(returned %d)" % val
+# testAntList = [Ant((2,4), 4, None), Ant((3,5), 2, None), Ant((2,5), 3, None), Ant((2,2), 1, None)]
+# val = AIPlayer.get_closest_enemy_dist(testPlayer, (2,1), testAntList)
+# assert (AIPlayer.get_closest_enemy_dist(testPlayer, (2,1), testAntList)==3), "get_closest_enemy_dist isn't working right(returned %d)" % val
 
-#test get_closest_enemy_worker_dist
-testAntList = [Ant((2,4), 1, None), Ant((3,5), 1, None), Ant((2,5), 1, None), Ant((2,2), 2, None)]
-val = AIPlayer.get_closest_enemy_worker_dist(testPlayer, (2,1), testAntList)
-assert (AIPlayer.get_closest_enemy_worker_dist(testPlayer, (2,1), testAntList)==3), "get_closest_enemy_worker_dist isn't working right(returned %d)" % val
+# test get_closest_enemy_worker_dist
+# testAntList = [Ant((2,4), 1, None), Ant((3,5), 1, None), Ant((2,5), 1, None), Ant((2,2), 2, None)]
+# val = AIPlayer.get_closest_enemy_worker_dist(testPlayer, (2,1), testAntList)
+# assert (AIPlayer.get_closest_enemy_worker_dist(testPlayer, (2,1), testAntList)==3), "get_closest_enemy_worker_dist isn't working right(returned %d)" % val
 
-#test get_closest_enemy_food_dist
-val = AIPlayer.get_closest_enemy_food_dist(testPlayer, (2,3), [(2,4), (2,5)])
-assert (AIPlayer.get_closest_enemy_food_dist(testPlayer, (2,3), [(2,4), (2,5)])==1), "get_closest_enemy_food_dist isn't working right(returned %d)" % val
+# test get_closest_enemy_food_dist
+# val = AIPlayer.get_closest_enemy_food_dist(testPlayer, (2,3), [(2,4), (2,5)])
+# assert (AIPlayer.get_closest_enemy_food_dist(testPlayer, (2,3), [(2,4), (2,5)])==1), "get_closest_enemy_food_dist isn't working right(returned %d)" % val
 
-#test evaluate_state
-board = [[Location((col, row)) for row in xrange(0,BOARD_LENGTH)] for col in xrange(0,BOARD_LENGTH)]
-testConstrList1=[Construction((1,1), ANTHILL), Construction((1,2), TUNNEL), Construction((9,1), FOOD), Construction((9,2), FOOD)]
-testConstrList2=[Construction((9,9), ANTHILL), Construction((9,8), TUNNEL), Construction((1,8), FOOD), Construction((1,9), FOOD)]
-p1Inventory = Inventory(PLAYER_ONE, [Ant((1,1), 0, PLAYER_ONE), Ant((1,5), 1, PLAYER_ONE)], testConstrList1, 0)
-p2Inventory = Inventory(PLAYER_TWO, [Ant((1,2), 2, PLAYER_ONE), Ant((1,6), 2, PLAYER_ONE)], testConstrList2, 0)
-neutralInventory = Inventory(NEUTRAL, [], [], 0)
-testState1 = GameState(board, [p1Inventory, p2Inventory, neutralInventory], MENU_PHASE, PLAYER_ONE)
-eval1 = AIPlayer.evaluate_state(testPlayer, testState1)
-board = [[Location((col, row)) for row in xrange(0,BOARD_LENGTH)] for col in xrange(0,BOARD_LENGTH)]
-p1Inventory = Inventory(PLAYER_ONE, [Ant((1,1), 2, PLAYER_ONE), Ant((1,5), 2, PLAYER_ONE)], [Construction((1,1), ANTHILL), Construction((1,2), TUNNEL)], 0)
-p2Inventory = Inventory(PLAYER_TWO, [Ant((1,2), 0, PLAYER_ONE), Ant((1,6), 1, PLAYER_ONE)], [Construction((9,9), ANTHILL), Construction((9,8), TUNNEL)], 0)
-neutralInventory = Inventory(NEUTRAL, [], [], 0)
-testState2 = GameState(board, [p1Inventory, p2Inventory, neutralInventory], MENU_PHASE, PLAYER_ONE)
-eval2 = AIPlayer.evaluate_state(testPlayer, testState2)
-assert(eval1<eval2), "evaluate_state is broken (returned %d and %d)" % (eval1, eval2)
+# test evaluate_state
+# board = [[Location((col, row)) for row in xrange(0,BOARD_LENGTH)] for col in xrange(0,BOARD_LENGTH)]
+# testConstrList1=[Construction((1,1), ANTHILL), Construction((1,2), TUNNEL), Construction((9,1), FOOD), Construction((9,2), FOOD)]
+# testConstrList2=[Construction((9,9), ANTHILL), Construction((9,8), TUNNEL), Construction((1,8), FOOD), Construction((1,9), FOOD)]
+# p1Inventory = Inventory(PLAYER_ONE, [Ant((1,1), 0, PLAYER_ONE), Ant((1,5), 1, PLAYER_ONE)], testConstrList1, 0)
+# p2Inventory = Inventory(PLAYER_TWO, [Ant((1,2), 2, PLAYER_ONE), Ant((1,6), 2, PLAYER_ONE)], testConstrList2, 0)
+# neutralInventory = Inventory(NEUTRAL, [], [], 0)
+# testState1 = GameState(board, [p1Inventory, p2Inventory, neutralInventory], MENU_PHASE, PLAYER_ONE)
+# eval1 = AIPlayer.evaluate_state(testPlayer, testState1)
+# board = [[Location((col, row)) for row in xrange(0,BOARD_LENGTH)] for col in xrange(0,BOARD_LENGTH)]
+# p1Inventory = Inventory(PLAYER_ONE, [Ant((1,1), 2, PLAYER_ONE), Ant((1,5), 2, PLAYER_ONE)], [Construction((1,1), ANTHILL), Construction((1,2), TUNNEL)], 0)
+# p2Inventory = Inventory(PLAYER_TWO, [Ant((1,2), 0, PLAYER_ONE), Ant((1,6), 1, PLAYER_ONE)], [Construction((9,9), ANTHILL), Construction((9,8), TUNNEL)], 0)
+# neutralInventory = Inventory(NEUTRAL, [], [], 0)
+# testState2 = GameState(board, [p1Inventory, p2Inventory, neutralInventory], MENU_PHASE, PLAYER_ONE)
+# eval2 = AIPlayer.evaluate_state(testPlayer, testState2)
+# assert(eval1<eval2), "evaluate_state is broken (returned %d and %d)" % (eval1, eval2)
 
 
