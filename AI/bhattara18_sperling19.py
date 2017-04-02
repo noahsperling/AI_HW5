@@ -517,7 +517,9 @@ class AIPlayer(Player):
         if eval <= 0:
             eval = 0.00002
 
-        self.neural_network(state, eval)
+        # print "wste called from heuristic"
+        self.write_state_to_file(state, eval, "states.txt")
+        # self.generate_input_matrix(state, eval)
 
         return eval
 
@@ -536,7 +538,7 @@ class AIPlayer(Player):
     #   returns a double between zero and one
     #
     ##
-    def generate_input_matrix(self, state):
+    def generate_input_matrix(self, state, h_eval, matrix_or_eval):
 
         # food inventory numbers
         player_food = 0
@@ -672,13 +674,16 @@ class AIPlayer(Player):
                 else:
                     d_distance_to_move += self.get_closest_enemy_food_dist(ant.coords, enemy_food_coords)
 
-        print(player_food, enemy_food, queen_health, queen_dist_to_closest_enemy, queen_on_construct_not_grass,
-              queen_in_rows_0_or_1, worker_count, num_carrying, w_distance_to_move, distance_to_food, drone_count,
-              d_distance_to_move)
+        #print(player_food, enemy_food, queen_health, queen_dist_to_closest_enemy, queen_on_construct_not_grass,
+        #      queen_in_rows_0_or_1, worker_count, num_carrying, w_distance_to_move, distance_to_food, drone_count,
+        #      d_distance_to_move)
         output = np.matrix([[player_food], [enemy_food], [queen_health], [queen_dist_to_closest_enemy],
                 [queen_on_construct_not_grass], [queen_in_rows_0_or_1], [worker_count], [num_carrying],
                 [w_distance_to_move], [distance_to_food], [drone_count], [d_distance_to_move]])
-        return output
+        if matrix_or_eval == 0:
+            return output
+        else:
+            return self.neural_network(output, h_eval)
 
 
     ##
@@ -694,9 +699,7 @@ class AIPlayer(Player):
     #   returns a state evaluation from the neural network
     #
     ##
-    def neural_network(self, state, h_eval):
-
-        input_matrix = self.generate_input_matrix(state)
+    def neural_network(self, input_matrix, h_eval):
 
         first_layer_input = np.matmul(self.first_weight_matrix, input_matrix)
 
@@ -720,11 +723,11 @@ class AIPlayer(Player):
             output += y
             break
 
-        print output
+        #print output
 
         error = h_eval - output
 
-        print "Error:", error
+        #print "Error:", error
 
         return second_layer_output
 
@@ -776,6 +779,51 @@ class AIPlayer(Player):
                 alist[k] = righthalf[j]
                 j = j + 1
                 k = k + 1
+
+    def write_state_to_file(self, state, state_eval, file_name):
+
+        # the input matrix to save
+        values = self.generate_input_matrix(state, state_eval, 0)
+
+        # a list of values to print the matrix more easily
+        lv = []
+
+        # loops through the matrix and adds the values to a list
+        for v in np.nditer(values):
+            lv.append(v)
+
+        #checks to make sure nothing went wrong
+        if not len(lv) == 12:
+            print "Error"
+
+        # if nothing went wrong
+        else:
+            try:
+                file = open(file_name, "a")
+                # print "File opened"
+                line_to_write = lv[0], lv[1], lv[2], lv[3], lv[4], lv[5], lv[6], lv[7], lv[8], lv[9], lv[10], lv[11], state_eval
+                file.write("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n" % (lv[0], lv[1], lv[2], lv[3], lv[4], lv[5], lv[6], lv[7], lv[8], lv[9], lv[10], lv[11], state_eval))
+                file.close()
+                # print "File closed"
+            except Exception:
+                print("Something went wrong opening and appending to the text file.")
+        return
+
+    def read_states_from_file_and_train_neural_network(self, file_name):
+        with open(file_name) as f:
+            for line in f:
+                ls = line.split(",")
+                input_matrix = np.matrix([[ls[0]], [ls[1]], [ls[2]], [ls[3]], [ls[4]], [ls[5]], [ls[6]], [ls[7]], [ls[8]],
+                                          [ls[9]], [ls[10]], [ls[11]]])
+                state_eval = float(ls[12])
+                self.neural_network(input_matrix, state_eval)
+        f.close()
+        return
+
+
+
+
+
 
 
 # unit tests
