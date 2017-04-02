@@ -46,7 +46,7 @@ class AIPlayer(Player):
     #whether or not the playerID has been set up yet
     me_set_up = False
 
-    #the matrix of weights from the input to the first layer
+    # the matrix of weights from the input to the first layer
     first_weight_matrix = np.matrix([[1.0, -2.1, 1.3, -0.5, 2.138, -2.138, 1.2, -0.9, 1.26, 0.11, 2.1, -1.5],
                                      [-0.9, -0.75, 1.75, 0.256, 2.0, -1.25, -1.24, -2.0, 1.98, 0.5, 0.6, 0.7],
                                      [0.1, -0.89, 1.456, 2.013, 0.564, -2.136, 1.789, -0.2, -0.1, 1.03, 0.745, 1.111],
@@ -59,6 +59,11 @@ class AIPlayer(Player):
     # the matrix of weights from the first layer to the output layer
     second_weight_matrix = np.matrix([[3.0984, 1.21, -2.15, 0.6, 1.212, -2.56, -2.0, 1.105, -3.0984]])
 
+    # the learning rate
+    alpha = 1.0
+
+    # number of states to read if setting a finite value
+    states_to_train = 10
 
     # __init__
     # Description: Creates a new Player
@@ -731,7 +736,29 @@ class AIPlayer(Player):
 
         # back propogation
 
-        return second_layer_output
+        index = 0
+
+        delta_array = []
+
+        print self.second_weight_matrix
+
+        swl = []
+
+        for x in np.nditer(self.second_weight_matrix):
+            delta = self.g_derivative(first_layer_output[index], False) * error
+            delta_array.append(delta)
+            g_deriv = self.g_derivative(second_layer_output, True)
+            new_weight = x + self.alpha * delta * g_deriv * output
+            swl.append(new_weight)
+            index += 1
+
+        swl.reverse()
+
+        self.second_weight_matrix = np.matrix([[swl.pop()], [swl.pop()], [swl.pop()], [swl.pop()], [swl.pop()], [swl.pop()], [swl.pop()], [swl.pop()], [swl.pop()]])
+
+        print self.second_weight_matrix
+
+        return output
 
 
     ##
@@ -756,9 +783,12 @@ class AIPlayer(Player):
     # Return
     #   returns the derivative of the sigmoid function at x
     ##
-    def g_derivative(self, x):
-        output = (1 / (1+np.exp(-x))) * (1 - (1 / (1+np.exp(-x))))
-        return output
+    def g_derivative(self, x, g_of_x):
+        if not g_of_x:
+            output = (1 / (1+np.exp(-x))) * (1 - (1 / (1+np.exp(-x))))
+            return output
+        else:
+            return x * (1 - x)
 
 
     ##
@@ -828,20 +858,28 @@ class AIPlayer(Player):
 
     def read_states_from_file_and_train_neural_network(self, file_name):
         with open(file_name) as f:
+
+            line_count = 0
+
             for line in f:
                 ls = line.split(",")
-                input_matrix = np.matrix([[ls[0]], [ls[1]], [ls[2]], [ls[3]], [ls[4]], [ls[5]], [ls[6]], [ls[7]], [ls[8]],
-                                          [ls[9]], [ls[10]], [ls[11]]])
-                state_eval = float(ls[12])
+                ls2 = []
+                for num in ls:
+                    ls2.append(float(num))
+                input_matrix = np.matrix([[ls2[0]], [ls2[1]], [ls2[2]], [ls2[3]], [ls2[4]], [ls2[5]], [ls2[6]],
+                                          [ls2[7]], [ls2[8]], [ls2[9]], [ls2[10]], [ls2[11]]])
+                state_eval = ls2[12]
                 self.neural_network(input_matrix, state_eval)
+                line_count += 1
+
+                if line_count >= self.states_to_train:
+                    break
         f.close()
         return
 
 
-
-
-
-
+AIP = AIPlayer(PLAYER_ONE)
+AIP.read_states_from_file_and_train_neural_network("C:/Users/theem/PycharmProjects/AI_HW5/states.txt")
 
 # unit tests
 # testPlayer = AIPlayer(PLAYER_ONE)
