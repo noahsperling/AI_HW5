@@ -729,6 +729,8 @@ class AIPlayer(Player):
 
         #print "Error:", error
 
+        # back propogation
+
         return second_layer_output
 
 
@@ -743,6 +745,21 @@ class AIPlayer(Player):
     ##
     def g(self, x):
         return 1 / (1 + np.exp(-x))
+
+
+    ##
+    # g_derivative
+    #
+    # Parameters
+    #   x - number to input to sigmoid function
+    #
+    # Return
+    #   returns the derivative of the sigmoid function at x
+    ##
+    def g_derivative(self, x):
+        output = (1 / (1+np.exp(-x))) * (1 - (1 / (1+np.exp(-x))))
+        return output
+
 
     ##
     # merge_sort
