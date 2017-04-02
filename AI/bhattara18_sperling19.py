@@ -523,7 +523,7 @@ class AIPlayer(Player):
             eval = 0.00002
 
         # print "wste called from heuristic"
-        self.write_state_to_file(state, eval, "states.txt")
+        self.write_state_to_file(state, eval, "states_laptop.txt")
         # self.generate_input_matrix(state, eval)
 
         return eval
@@ -716,6 +716,9 @@ class AIPlayer(Player):
         first_layer_output = np.matrix([[temp_list[0]], [temp_list[1]], [temp_list[2]], [temp_list[3]], [temp_list[4]],
                                         [temp_list[5]], [temp_list[6]], [temp_list[7]], [temp_list[8]]])
 
+        #print self.second_weight_matrix
+        #print first_layer_output
+
         second_layer_input = np.matmul(self.second_weight_matrix, first_layer_output)
 
         second_layer_output = self.g(second_layer_input)
@@ -734,6 +737,10 @@ class AIPlayer(Player):
 
         #print "Error:", error
 
+        print output
+
+        return output
+
         # back propogation
 
         index = 0
@@ -748,13 +755,18 @@ class AIPlayer(Player):
             delta = self.g_derivative(first_layer_output[index], False) * error
             delta_array.append(delta)
             g_deriv = self.g_derivative(second_layer_output, True)
-            new_weight = x + self.alpha * delta * g_deriv * output
+            new_weight_matrix = x + self.alpha * delta * g_deriv * output
+            new_weight = 0.0
+            for y in np.nditer(new_weight_matrix):
+                new_weight = y
+            #print new_weight
             swl.append(new_weight)
             index += 1
 
-        swl.reverse()
+        print swl
 
-        self.second_weight_matrix = np.matrix([[swl.pop()], [swl.pop()], [swl.pop()], [swl.pop()], [swl.pop()], [swl.pop()], [swl.pop()], [swl.pop()], [swl.pop()]])
+        self.second_weight_matrix = np.matrix([[swl[0].item(), swl[1].item(), swl[1].item(), swl[2].item(), swl[3].item(),
+                                               swl[4].item(), swl[5].item(), swl[6].item(), swl[7].item(), swl[8].item()]])
 
         print self.second_weight_matrix
 
@@ -879,8 +891,8 @@ class AIPlayer(Player):
 
 
 AIP = AIPlayer(PLAYER_ONE)
-AIP.read_states_from_file_and_train_neural_network("C:/Users/theem/PycharmProjects/AI_HW5/states.txt")
-
+# AIP.read_states_from_file_and_train_neural_network("C:/Users/theem/PycharmProjects/AI_HW5/states.txt")
+AIP.read_states_from_file_and_train_neural_network("C:/Users/Noah/PycharmProjects/AI_HW5/states_laptop.txt")
 # unit tests
 # testPlayer = AIPlayer(PLAYER_ONE)
 #test get_closest_enemy_dist
