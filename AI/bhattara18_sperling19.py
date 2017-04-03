@@ -56,6 +56,7 @@ class AIPlayer(Player):
                                      [-0.125, 1.1, -0.8, 0.9, 2.131, -2.138, 0.141, 0.56, 1.7, 0.9, 2.0, -2.0],
                                      [1.0, -2.1, 1.45, -0.2, 1.0, 1.1, -0.5, -0.6, -0.7, -0.8, 2.0, 1.1],
                                      [1.1, 0.7, -0.2, 0.9, 1.9, -0.987, -1.2, 2.1, -1.75, 0.4, -1.352, 0.312]])
+
     # the matrix of weights from the first layer to the output layer
     second_weight_matrix = np.matrix([[3.0984, 1.21, -2.15, 0.6, 1.212, -2.56, -2.0, 1.105, -3.0984]])
 
@@ -63,7 +64,7 @@ class AIPlayer(Player):
     alpha = 1.0
 
     # number of states to read if setting a finite value
-    states_to_train = 10
+    states_to_train = 2759
 
     # __init__
     # Description: Creates a new Player
@@ -769,8 +770,12 @@ class AIPlayer(Player):
 
         for x in range(9):
             for y in range(12):
-                self.first_weight_matrix[x, y] = self.first_weight_matrix[x, y] + self.alpha * delta_array[x] * input_matrix[0, y]
 
+                #print self.first_weight_matrix[x, y]
+
+                self.first_weight_matrix[x, y] = self.first_weight_matrix[x, y] + self.alpha * delta_array[x] * input_matrix[y, 0]
+
+                #print self.first_weight_matrix[x, y]
 
         #for x in np.nditer(self.first_weight_matrix):
 
@@ -876,6 +881,8 @@ class AIPlayer(Player):
     def read_states_from_file_and_train_neural_network(self, file_name):
         with open(file_name) as f:
 
+            print self.first_weight_matrix
+
             line_count = 0
 
             for line in f:
@@ -890,6 +897,7 @@ class AIPlayer(Player):
                 line_count += 1
 
                 if line_count >= self.states_to_train:
+                    print self.first_weight_matrix
                     break
         f.close()
         return
