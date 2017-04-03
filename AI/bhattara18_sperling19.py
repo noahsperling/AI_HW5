@@ -735,11 +735,11 @@ class AIPlayer(Player):
 
         error = h_eval - output
 
-        #print "Error:", error
+        print "Error:", error
 
-        print output
+        # print output
 
-        return output
+        #return output
 
         # back propogation
 
@@ -747,28 +747,33 @@ class AIPlayer(Player):
 
         delta_array = []
 
-        print self.second_weight_matrix
-
         swl = []
 
         for x in np.nditer(self.second_weight_matrix):
-            delta = self.g_derivative(first_layer_output[index], False) * error
-            delta_array.append(delta)
-            g_deriv = self.g_derivative(second_layer_output, True)
-            new_weight_matrix = x + self.alpha * delta * g_deriv * output
-            new_weight = 0.0
-            for y in np.nditer(new_weight_matrix):
-                new_weight = y
-            #print new_weight
+            delta = self.g_derivative(second_layer_input, False) * error
+            #g_deriv = self.g_derivative(second_layer_input, True)
+            new_weight = x + self.alpha * delta * output
             swl.append(new_weight)
             index += 1
 
-        print swl
+        self.second_weight_matrix = np.matrix([[swl[0], swl[1], swl[2], swl[3], swl[4], swl[5], swl[6], swl[7],
+                                                swl[8]]])
 
-        self.second_weight_matrix = np.matrix([[swl[0].item(), swl[1].item(), swl[1].item(), swl[2].item(), swl[3].item(),
-                                               swl[4].item(), swl[5].item(), swl[6].item(), swl[7].item(), swl[8].item()]])
+        weight_list = []
 
-        print self.second_weight_matrix
+        for item in np.nditer(self.second_weight_matrix):
+            weight_list.append(item)
+
+        for x in range(9):
+            delta_array.append(self.g_derivative(first_layer_output[x], True) * weight_list[x] * delta)
+
+        for x in range(9):
+            for y in range(12):
+                self.first_weight_matrix[x, y] = self.first_weight_matrix[x, y] + self.alpha * delta_array[x] * input_matrix[0, y]
+
+
+        #for x in np.nditer(self.first_weight_matrix):
+
 
         return output
 
@@ -783,7 +788,7 @@ class AIPlayer(Player):
     #   returns the output value of the sigmoid function
     ##
     def g(self, x):
-        return 1 / (1 + np.exp(-x))
+        return 1 / (1 + np.exp(-x).item())
 
 
     ##
@@ -797,7 +802,7 @@ class AIPlayer(Player):
     ##
     def g_derivative(self, x, g_of_x):
         if not g_of_x:
-            output = (1 / (1+np.exp(-x))) * (1 - (1 / (1+np.exp(-x))))
+            output = (1 / (1+np.exp(-x).item())) * (1 - (1 / (1+np.exp(-x).item())))
             return output
         else:
             return x * (1 - x)
