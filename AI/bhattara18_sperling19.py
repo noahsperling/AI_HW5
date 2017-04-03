@@ -19,7 +19,7 @@ from AIPlayerUtils import *
 # based on the evaluate_state heuristic function
 # Assignment: Homework #3: Minimax AI
 #
-# Due Date: February 27th, 2017
+# Due Date: April 7th, 2017
 #
 # @names: Noah Sperling, Avaya Bhattara
 ##
