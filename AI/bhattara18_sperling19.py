@@ -61,7 +61,7 @@ class AIPlayer(Player):
     second_weight_matrix = np.matrix([[3.0984, 1.21, -2.15, 0.6, 1.212, -2.56, -2.0, 1.105, -3.0984]])
 
     # the learning rate
-    alpha = 1.0
+    alpha = 8.0
 
     # number of states to read if setting a finite value
     states_to_train = 2759
@@ -903,9 +903,9 @@ class AIPlayer(Player):
         return
 
 
-AIP = AIPlayer(PLAYER_ONE)
+# AIP = AIPlayer(PLAYER_ONE)
 # AIP.read_states_from_file_and_train_neural_network("C:/Users/theem/PycharmProjects/AI_HW5/states.txt")
-AIP.read_states_from_file_and_train_neural_network("C:/Users/Noah/PycharmProjects/AI_HW5/states_laptop.txt")
+# AIP.read_states_from_file_and_train_neural_network("C:/Users/Noah/PycharmProjects/AI_HW5/states_laptop.txt")
 # unit tests
 # testPlayer = AIPlayer(PLAYER_ONE)
 #test get_closest_enemy_dist
