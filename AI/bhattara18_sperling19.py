@@ -64,7 +64,20 @@ class AIPlayer(Player):
     alpha = 8.0
 
     # number of states to read if setting a finite value
-    states_to_train = 2759
+    states_to_train = 3279896
+
+    xor_input_list = []
+
+    xor_input_list.append(np.matrix([[1], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0]]))
+    xor_input_list.append(np.matrix([[0], [1], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0]]))
+    xor_input_list.append(np.matrix([[0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0]]))
+    xor_input_list.append(np.matrix([[1], [1], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0]]))
+
+    xor_output_list = []
+    xor_output_list.append(1)
+    xor_output_list.append(1)
+    xor_output_list.append(0)
+    xor_output_list.append(0)
 
     # __init__
     # Description: Creates a new Player
@@ -903,8 +916,8 @@ class AIPlayer(Player):
         return
 
 
-# AIP = AIPlayer(PLAYER_ONE)
-# AIP.read_states_from_file_and_train_neural_network("C:/Users/theem/PycharmProjects/AI_HW5/states.txt")
+AIP = AIPlayer(PLAYER_ONE)
+AIP.read_states_from_file_and_train_neural_network("C:/Users/theem/PycharmProjects/AI_HW5/states.txt")
 # AIP.read_states_from_file_and_train_neural_network("C:/Users/Noah/PycharmProjects/AI_HW5/states_laptop.txt")
 # unit tests
 # testPlayer = AIPlayer(PLAYER_ONE)
