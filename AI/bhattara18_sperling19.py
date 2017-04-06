@@ -74,6 +74,24 @@ class AIPlayer(Player):
     ##
     def __init__(self, inputPlayerId):
         super(AIPlayer, self).__init__(inputPlayerId, "Neural Network AI")
+        random_array = np.random.rand(9, 12)
+        random_array_2 = np.random.rand(9, 1)
+        self.first_weight_matrix = np.matrix(random_array)
+        for x in range(9):
+            for y in range(12):
+                z = random.randint(0, 2)
+                if z == 0:
+                    self.first_weight_matrix[x, y] = self.first_weight_matrix[x, y] * -1.5 * random.uniform(0, 2)
+                else:
+                    self.first_weight_matrix[x, y] = self.first_weight_matrix[x, y] * 1.5 * random.uniform(0, 2)
+        for x in range(9):
+            z = random.randint(0, 2)
+            if z == 0:
+                self.first_weight_matrix[x, y] = self.first_weight_matrix[x, 0] * -1.5 * random.uniform(0, 2)
+            else:
+                self.first_weight_matrix[x, y] = self.first_weight_matrix[x, 0] * 1.5 * random.uniform(0, 2)
+        print self.first_weight_matrix
+        print self.second_weight_matrix
 
     # Method to create a node containing the state, evaluation, move, current depth,
     # the parent node, and the index
@@ -903,9 +921,9 @@ class AIPlayer(Player):
         return
 
 
-# AIP = AIPlayer(PLAYER_ONE)
+AIP = AIPlayer(PLAYER_ONE)
 # AIP.read_states_from_file_and_train_neural_network("C:/Users/theem/PycharmProjects/AI_HW5/states.txt")
-# AIP.read_states_from_file_and_train_neural_network("C:/Users/Noah/PycharmProjects/AI_HW5/states_laptop.txt")
+AIP.read_states_from_file_and_train_neural_network("C:/Users/Noah/PycharmProjects/AI_HW5/states_laptop.txt")
 # unit tests
 # testPlayer = AIPlayer(PLAYER_ONE)
 #test get_closest_enemy_dist
