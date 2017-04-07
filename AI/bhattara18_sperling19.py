@@ -29,7 +29,7 @@ class AIPlayer(Player):
     node_list = []
 
     #maximum depth
-    max_depth = 3
+    max_depth = 2
 
     #current index - for recursive function
     cur_array_index = 0
@@ -64,7 +64,10 @@ class AIPlayer(Player):
     alpha = 8.0
 
     # number of states to read if setting a finite value
-    states_to_train = 2759
+    states_to_train = 3279896
+
+    saved_states = []
+    state_evals = []
 
     # __init__
     # Description: Creates a new Player
@@ -90,8 +93,29 @@ class AIPlayer(Player):
                 self.first_weight_matrix[x, y] = self.first_weight_matrix[x, 0] * -1.5 * random.uniform(0, 2)
             else:
                 self.first_weight_matrix[x, y] = self.first_weight_matrix[x, 0] * 1.5 * random.uniform(0, 2)
-        print self.first_weight_matrix
-        print self.second_weight_matrix
+        # print self.first_weight_matrix
+        # print self.second_weight_matrix
+
+        self.first_weight_matrix = np.matrix([[ 0.04296261, -0.00628038,  0.27827176, -0.13588286, -0.25127794, -0.27177233,
+                                               2.35257976, 0.36388308, -0.12767779, -0.06549157,  1.46824661,  2.62367119],
+                                              [0.75885294, -0.21849033, -1.10948285, -0.21401529, -0.13431931, -0.44136345,
+                                              -0.70673227,  0.06379986, -0.11464379, -0.43177387, -1.19580248, -0.09054072],
+                                              [1.59358299,  1.12905486, -2.12554067,  3.09710912,  1.2441581,   0.41507068,
+                                              -0.49123548, -1.13310185,  3.34456708,  0.16465817,  0.97946117,  0.13992432],
+                                              [-0.6320296,  -0.05782614,  0.94115319,  0.23124249,  0.50108918,  0.0319309,
+                                              -0.08918449,  0.36782068,  1.31757002,  0.09120488,  2.2095523,   2.02544724],
+                                              [0.17390543,  0.37548828,  0.45778235,  1.7447831,   0.70789484,  0.82837809,
+                                               1.85334041,  0.58748228,  2.54842695,  0.27582609,  0.51836179,  0.21435683],
+                                              [1.66622642, -0.44256821, -0.56076182,  2.63640529,  0.31138571,  0.7113685,
+                                              -0.30428501,  1.0619382,  -0.04729329,  0.05020451, -2.53424915,  0.85051671],
+                                              [-0.39766882,  0.07224534, -1.99246034,  0.04097969,  0.19880767,  0.28420025,
+                                               1.13050941, -0.49205424,  0.01604432,  2.25520847, -1.63453279,  0.04559557],
+                                              [3.25950534,  0.08252181,  0.93760285,  1.16675838, -0.26991765, -0.20293017,
+                                               0.31474898,  0.64117251,  0.42542181,  0.72376047, -0.54522724,  2.06657169],
+                                              [0.39173258,  0.44152556, -1.67034501,  0.88672241,  1.7051667,  -0.81296324,
+                                               0.11361068, -0.03577274,  0.42207149,  0.19104483,  1.39571185,  0.27233292]])
+        self.second_weight_matrix = np.matrix([[3.46169241, 1.57329241, -1.78670759, 0.96329241, 1.57529241,
+                                                -2.19670759, -1.63670759, 1.46829241, -2.73510759]])
 
     # Method to create a node containing the state, evaluation, move, current depth,
     # the parent node, and the index
@@ -226,7 +250,10 @@ class AIPlayer(Player):
             state_eval = 0
             state = getNextStateAdversarial(game_state, move)
             state_eval = self.evaluate_state(state)
-            #print(state_eval)
+            self.saved_states.append(self.generate_input_matrix(state, state_eval, 0))
+            self.state_evals.append(state_eval)
+            # state_eval = self.generate_input_matrix(state, -1, 1)
+            # print(state_eval)
             if not state_eval == 0.00001:
                 node_list.append([state, move, state_eval])
 
@@ -750,15 +777,14 @@ class AIPlayer(Player):
             output += y
             break
 
-        #print output
+        # print output
 
         error = h_eval - output
 
-        # print "Error:", error
+        #print "Error:", error
 
-        # print output
-
-        #return output
+        if h_eval == -1:
+            return output
 
         # back propogation
 
@@ -914,16 +940,61 @@ class AIPlayer(Player):
                 self.neural_network(input_matrix, state_eval)
                 line_count += 1
 
+                if line_count == 1000:
+                    self.alpha = 2
+                elif line_count == 10000:
+                    self.alpha = 1
+                elif self.alpha == 20000:
+                    self.alpha = 0.5
+                elif self.alpha == 50000:
+                    self.alpha = 0.1
+
                 if line_count >= self.states_to_train:
                     print self.first_weight_matrix
+                    print self.second_weight_matrix
                     break
         f.close()
         return
 
+    def shuffle_states_in_file(self, file_name):
 
-AIP = AIPlayer(PLAYER_ONE)
-# AIP.read_states_from_file_and_train_neural_network("C:/Users/theem/PycharmProjects/AI_HW5/states.txt")
-AIP.read_states_from_file_and_train_neural_network("C:/Users/Noah/PycharmProjects/AI_HW5/states_laptop.txt")
+        state_list = []
+
+        with open(file_name) as f:
+            for line in f:
+                state_list.append(line)
+
+        random.shuffle(state_list)
+
+        with open("C:/Users/theem/PycharmProjects/AI_HW5/states_shuffled.txt", "w") as wf:
+            for state in state_list:
+                wf.write(state)
+
+    def registerWin(self, hasWon):
+        super(AIPlayer, self).registerWin(hasWon)
+
+        f = open("C:/Users/theem/PycharmProjects/AI_HW5/states.txt", "a")
+
+        index = 0
+
+        for state in self.saved_states:
+            f.write("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n" % (state[0].item, state[1].item, state[2].item, state[3].item, state[4].item, state[5].item, state[6].item,
+                                                                  state[7].item, state[8].item, state[9].item, state[10].item, state[11].item, self.state_evals[index]))
+
+        f.close()
+
+
+        self.shuffle_states_in_file("C:/Users/theem/PycharmProjects/AI_HW5/states.txt")
+
+
+
+
+
+
+# AIP = AIPlayer(PLAYER_ONE)
+# AIP.shuffle_states_in_file("C:/Users/theem/PycharmProjects/AI_HW5/states.txt")
+# AIP.read_states_from_file_and_train_neural_network("C:/Users/theem/PycharmProjects/AI_HW5/states_shuffled.txt")
+# AIP.read_states_from_file_and_train_neural_network("C:/Users/Noah/PycharmProjects/AI_HW5/states_laptop.txt")
 # unit tests
 # testPlayer = AIPlayer(PLAYER_ONE)
 #test get_closest_enemy_dist
