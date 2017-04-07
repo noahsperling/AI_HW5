@@ -749,7 +749,7 @@ class AIPlayer(Player):
 
         error = h_eval - output
 
-        print "Error:", error
+        # print "Error:", error
 
         # print output
 
@@ -915,9 +915,33 @@ class AIPlayer(Player):
         f.close()
         return
 
+    def learn_xor_gate(self):
+        error_av = 1.0
+        recent_ten_errors = []
+        while error_av != 0:
+            index = random.randint(0, 3)
+            output = self.neural_network(self.xor_input_list[index], self.xor_output_list[index])
+            if len(recent_ten_errors) <= 9:
+                recent_ten_errors.insert(0, output)
+            else:
+                recent_ten_errors.insert(0, output)
+                recent_ten_errors.pop()
+            error_temp = 0.0
+            for x in range(len(recent_ten_errors)):
+                error_temp += recent_ten_errors[x]
+            error_av = error_temp / len(recent_ten_errors)
+        print "Learned XOR"
+
+
+
+
+
+
+
 
 AIP = AIPlayer(PLAYER_ONE)
-AIP.read_states_from_file_and_train_neural_network("C:/Users/theem/PycharmProjects/AI_HW5/states.txt")
+AIP.learn_xor_gate()
+# AIP.read_states_from_file_and_train_neural_network("C:/Users/theem/PycharmProjects/AI_HW5/states.txt")
 # AIP.read_states_from_file_and_train_neural_network("C:/Users/Noah/PycharmProjects/AI_HW5/states_laptop.txt")
 # unit tests
 # testPlayer = AIPlayer(PLAYER_ONE)
