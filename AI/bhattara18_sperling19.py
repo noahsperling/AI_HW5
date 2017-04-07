@@ -64,20 +64,7 @@ class AIPlayer(Player):
     alpha = 8.0
 
     # number of states to read if setting a finite value
-    states_to_train = 3279896
-
-    xor_input_list = []
-
-    xor_input_list.append(np.matrix([[1], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0]]))
-    xor_input_list.append(np.matrix([[0], [1], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0]]))
-    xor_input_list.append(np.matrix([[0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0]]))
-    xor_input_list.append(np.matrix([[1], [1], [0], [0], [0], [0], [0], [0], [0], [0], [0], [0]]))
-
-    xor_output_list = []
-    xor_output_list.append(1)
-    xor_output_list.append(1)
-    xor_output_list.append(0)
-    xor_output_list.append(0)
+    states_to_train = 2759
 
     # __init__
     # Description: Creates a new Player
@@ -87,6 +74,24 @@ class AIPlayer(Player):
     ##
     def __init__(self, inputPlayerId):
         super(AIPlayer, self).__init__(inputPlayerId, "Neural Network AI")
+        random_array = np.random.rand(9, 12)
+        random_array_2 = np.random.rand(9, 1)
+        self.first_weight_matrix = np.matrix(random_array)
+        for x in range(9):
+            for y in range(12):
+                z = random.randint(0, 2)
+                if z == 0:
+                    self.first_weight_matrix[x, y] = self.first_weight_matrix[x, y] * -1.5 * random.uniform(0, 2)
+                else:
+                    self.first_weight_matrix[x, y] = self.first_weight_matrix[x, y] * 1.5 * random.uniform(0, 2)
+        for x in range(9):
+            z = random.randint(0, 2)
+            if z == 0:
+                self.first_weight_matrix[x, y] = self.first_weight_matrix[x, 0] * -1.5 * random.uniform(0, 2)
+            else:
+                self.first_weight_matrix[x, y] = self.first_weight_matrix[x, 0] * 1.5 * random.uniform(0, 2)
+        print self.first_weight_matrix
+        print self.second_weight_matrix
 
     # Method to create a node containing the state, evaluation, move, current depth,
     # the parent node, and the index
@@ -915,34 +920,10 @@ class AIPlayer(Player):
         f.close()
         return
 
-    def learn_xor_gate(self):
-        error_av = 1.0
-        recent_ten_errors = []
-        while error_av != 0:
-            index = random.randint(0, 3)
-            output = self.neural_network(self.xor_input_list[index], self.xor_output_list[index])
-            if len(recent_ten_errors) <= 9:
-                recent_ten_errors.insert(0, output)
-            else:
-                recent_ten_errors.insert(0, output)
-                recent_ten_errors.pop()
-            error_temp = 0.0
-            for x in range(len(recent_ten_errors)):
-                error_temp += recent_ten_errors[x]
-            error_av = error_temp / len(recent_ten_errors)
-        print "Learned XOR"
-
-
-
-
-
-
-
 
 AIP = AIPlayer(PLAYER_ONE)
-AIP.learn_xor_gate()
 # AIP.read_states_from_file_and_train_neural_network("C:/Users/theem/PycharmProjects/AI_HW5/states.txt")
-# AIP.read_states_from_file_and_train_neural_network("C:/Users/Noah/PycharmProjects/AI_HW5/states_laptop.txt")
+AIP.read_states_from_file_and_train_neural_network("C:/Users/Noah/PycharmProjects/AI_HW5/states_laptop.txt")
 # unit tests
 # testPlayer = AIPlayer(PLAYER_ONE)
 #test get_closest_enemy_dist
