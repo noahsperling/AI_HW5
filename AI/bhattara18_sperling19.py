@@ -64,7 +64,7 @@ class AIPlayer(Player):
     alpha = 8.0
 
     # number of states to read if setting a finite value
-    states_to_train = 3279896
+    #states_to_train = 3279896
 
     saved_states = []
     state_evals = []
@@ -97,28 +97,58 @@ class AIPlayer(Player):
         # print self.second_weight_matrix
 
         #learned values for weights
-        self.first_weight_matrix = np.matrix([[-0.3314809, 0.02051796, 0.27827176, -0.13405296, -0.04528323, -0.36593736,
-                                               3.17357949, 0.36388308, -0.15984621, -0.06549157,  2.38986198,  4.76316749],
-                                              [0.79981796, -0.14335352, -1.10948285, -0.21529436, -0.21086663, -0.42392553,
-                                                -1.68807608,  0.06379986, -0.07891959, -0.43177387, -0.26132329, -0.09915906],
-                                              [1.59358917, 1.12905693, -2.12554067,  3.09774118,  1.24415781,  0.41511965,
-                                                -0.49083319, -1.13310185,  3.34461548,  0.16465817,  0.97961905,  0.14098712],
-                                              [-0.84180967, -0.14284245, 0.94115319,  0.17680101,  0.55560549, -0.19979548,
-                                                0.69912501,  0.36782068,  1.08905214,  0.09120488,  2.61922783,  2.65839143],
-                                              [0.17417748,  0.37534935,  0.45778235,  1.74296068, 0.70788871,  0.82802305,
-                                               1.85280889,  0.58748228,  2.54832074,  0.27582609,  0.51837024,  0.21399626],
-                                              [2.43836315, -0.24262531, -0.56076182,  2.46458728,  0.30935094,  1.07695769,
-                                               -0.57731759,  1.0619382,   0.54899854,  0.05020451, -1.78021857,  0.80811433],
-                                              [-0.46342259, 0.05012759, -1.99246034,  0.03044827,  0.21947921,  0.25378643,
-                                               1.00809016, -0.49205424,  0.05191638,  2.25520847, -1.58925333,  0.06982269],
-                                              [2.44605033, 0.08222542, 0.93760285, -0.0184974,  -0.42073367, -0.01302286,
-                                               1.54781771, 0.64117251, -0.03103366,  0.72376047, -0.04553157, 3.09536881],
-                                              [-0.17381389, 0.75642789, -1.67034501,  0.38846515,  0.40972277,  0.51083269,
-                                               0.19371773, -0.03577274,  0.11294647,  0.19104483,  1.92858105,  1.5521175]])
+        #self.first_weight_matrix = np.matrix([[-0.3314809, 0.02051796, 0.27827176, -0.13405296, -0.04528323, -0.36593736,
+        #                                       3.17357949, 0.36388308, -0.15984621, -0.06549157,  2.38986198,  4.76316749],
+        #                                      [0.79981796, -0.14335352, -1.10948285, -0.21529436, -0.21086663, -0.42392553,
+        #                                        -1.68807608,  0.06379986, -0.07891959, -0.43177387, -0.26132329, -0.09915906],
+        #                                      [1.59358917, 1.12905693, -2.12554067,  3.09774118,  1.24415781,  0.41511965,
+        #                                        -0.49083319, -1.13310185,  3.34461548,  0.16465817,  0.97961905,  0.14098712],
+        #                                      [-0.84180967, -0.14284245, 0.94115319,  0.17680101,  0.55560549, -0.19979548,
+        #                                        0.69912501,  0.36782068,  1.08905214,  0.09120488,  2.61922783,  2.65839143],
+        #                                      [0.17417748,  0.37534935,  0.45778235,  1.74296068, 0.70788871,  0.82802305,
+        #                                       1.85280889,  0.58748228,  2.54832074,  0.27582609,  0.51837024,  0.21399626],
+        #                                      [2.43836315, -0.24262531, -0.56076182,  2.46458728,  0.30935094,  1.07695769,
+        #                                       -0.57731759,  1.0619382,   0.54899854,  0.05020451, -1.78021857,  0.80811433],
+        #                                      [-0.46342259, 0.05012759, -1.99246034,  0.03044827,  0.21947921,  0.25378643,
+        #                                       1.00809016, -0.49205424,  0.05191638,  2.25520847, -1.58925333,  0.06982269],
+        #                                      [2.44605033, 0.08222542, 0.93760285, -0.0184974,  -0.42073367, -0.01302286,
+        #                                       1.54781771, 0.64117251, -0.03103366,  0.72376047, -0.04553157, 3.09536881],
+        #                                      [-0.17381389, 0.75642789, -1.67034501,  0.38846515,  0.40972277,  0.51083269,
+        #                                       0.19371773, -0.03577274,  0.11294647,  0.19104483,  1.92858105,  1.5521175]])
 
         #learned values for weights
-        self.second_weight_matrix = np.matrix([[3.45498413, 1.56658413, -1.79341587, 0.95658413, 1.56858413, -2.20341587,
-                                                -1.64341587, 1.46158413, -2.74181587]])
+        #self.second_weight_matrix = np.matrix([[3.45498413, 1.56658413, -1.79341587, 0.95658413, 1.56858413, -2.20341587,
+        #                                        -1.64341587, 1.46158413, -2.74181587]])
+
+        self.first_weight_matrix = np.matrix([[1.44421011e+00,  -1.83471661e-01,   8.76387763e-01,   1.03611718e+01,
+                                               -2.58004099e-01,  -3.41595794e-01,   1.88884207e+00,   8.63799627e-01,
+                                               1.56357590e-01,   7.71383658e-01,   1.13694462e+00,   2.30197841e+00],
+                                              [5.92010098e-01,  -1.61841954e+00,   6.68432695e-01,   2.25298574e+00,
+                                               -8.69557890e-02,  -4.36541068e-01,   1.25152057e+00,   9.37014483e-01,
+                                               -6.06798411e-01,   4.74948735e-01,   1.18682186e+00,   2.77894235e+00],
+                                              [1.35901475e+00,   3.36835709e-01,   4.72625364e-01,   1.45712462e+00,
+                                               8.64126536e-03,   8.59257427e-01,   6.40255917e-01,   4.28469006e-01,
+                                               8.06547048e-01,   8.78721526e-02,   4.92300046e-01,   2.94331041e-01],
+                                              [1.64453615e+00,   8.95026004e-01,   6.18492284e-01,  -3.40111788e-01,
+                                               -1.06758656e+00,  -1.42711940e+00,  -1.42783684e-01,   8.14051677e-01,
+                                               -3.33957892e-01,   1.42058641e-03,  -1.66977489e+00,  -2.69185274e-01],
+                                              [6.60240868e-01,  -4.80800827e-02,   5.74261891e-01,   9.90354839e-01,
+                                               -3.93922637e-01,   4.51098401e-02,   2.00529389e+01,   4.95343539e-01,
+                                               1.40559193e-02,   2.98765573e-01,  -2.01092459e+01,  -1.09738759e-01],
+                                              [-1.43188649e+00,   1.44799239e-01,   6.95284442e-01,  -8.30373730e+00,
+                                               2.10347052e-01,   3.44553535e-01,  -1.15463542e+00,   3.00739804e-01,
+                                               1.98832831e-01,   6.16184926e-01,  -2.49534078e+00,  -6.80543524e+00],
+                                              [1.16037913e+00,   2.00099603e-01,   4.89137990e-01,   1.60226107e+00,
+                                               3.18518352e-01,   8.15244087e-02,   4.18534036e-01,   3.74904862e-02,
+                                               8.60187790e-01,   8.11351268e-01,   4.88194224e-01,   2.70565428e-01],
+                                              [7.86081596e-01,   1.65233407e-01,   6.79081393e-01,  -4.58948257e-02,
+                                               -5.82717006e-01,  -9.37887380e-02,  -1.85875057e+01,   6.95652711e-01,
+                                               6.42780226e-03,   8.68895417e-01,   1.92201682e+01,  -1.17300153e-01],
+                                              [1.39502913e+00,   3.24511058e-01,   9.88146637e-01,   1.56104631e+00,
+                                               6.28812310e-02,   6.73812839e-01,   1.01968452e+00,   1.97750506e-01,
+                                               6.53715341e-01,   8.89692303e-01,   4.71905993e-01,   3.06223822e-01]])
+        self.second_weight_matrix = np.matrix([[3.27069721, 1.38229721, -1.97770279, 0.77229721, 1.38429721,
+                                                -2.38770279, -1.82770279, 1.27729721, -2.92610279]])
 
     # Method to create a node containing the state, evaluation, move, current depth,
     # the parent node, and the index
@@ -252,10 +282,10 @@ class AIPlayer(Player):
         for move in move_list:
             state_eval = 0
             state = getNextStateAdversarial(game_state, move)
-            state_eval = self.evaluate_state(state)
-            self.saved_states.append(self.generate_input_matrix(state, state_eval, 0))
-            self.state_evals.append(state_eval)
-            # state_eval = self.generate_input_matrix(state, -1, 1)
+            #state_eval = self.evaluate_state(state)
+            #self.saved_states.append(self.generate_input_matrix(state, state_eval, 0))
+            #self.state_evals.append(state_eval)
+            state_eval = self.generate_input_matrix(state, -1, 1)
             # print(state_eval)
             if not state_eval == 0.00001:
                 node_list.append([state, move, state_eval])
@@ -572,7 +602,7 @@ class AIPlayer(Player):
             eval = 0.00002
 
         # print "wste called from heuristic"
-        self.write_state_to_file(state, eval, "states_laptop.txt")
+        # self.write_state_to_file(state, eval, "states_laptop.txt")
         # self.generate_input_matrix(state, eval)
 
         return eval
@@ -770,7 +800,7 @@ class AIPlayer(Player):
 
         second_layer_input = np.matmul(self.second_weight_matrix, first_layer_output)
 
-        second_layer_output = self.g(second_layer_input)
+        second_layer_output = self.g(second_layer_input[0, 0])
 
         # this is bad code but I'm still new to numpy and it should work
 
@@ -840,7 +870,8 @@ class AIPlayer(Player):
     #   returns the output value of the sigmoid function
     ##
     def g(self, x):
-        return 1 / (1 + np.exp(-x).item())
+        print x
+        return 1 / (1 + 2.7182818284 ** (-1 * x))
 
 
     ##
@@ -926,9 +957,14 @@ class AIPlayer(Player):
         return
 
     def read_states_from_file_and_train_neural_network(self, file_name):
+
+        states_to_train = sum(1 for line in open(file_name))
+
         with open(file_name) as f:
 
             print self.first_weight_matrix
+
+
 
             line_count = 0
 
@@ -952,7 +988,7 @@ class AIPlayer(Player):
                 elif self.alpha == 50000:
                     self.alpha = 0.1
 
-                if line_count >= self.states_to_train:
+                if line_count >= states_to_train - 1:
                     print self.first_weight_matrix
                     print self.second_weight_matrix
                     break
@@ -969,25 +1005,27 @@ class AIPlayer(Player):
 
         random.shuffle(state_list)
 
-        with open("C:/Users/theem/PycharmProjects/AI_HW5/states_shuffled.txt", "w") as wf:
+        with open("C:/Users/theem/PycharmProjects/AI_HW5/states_shuffled_2.txt", "w") as wf:
             for state in state_list:
                 wf.write(state)
 
-    def registerWin(self, hasWon):
-        super(AIPlayer, self).registerWin(hasWon)
+    #def registerWin(self, hasWon):
+    #    super(AIPlayer, self).registerWin(hasWon)
 
-        f = open("C:/Users/theem/PycharmProjects/AI_HW5/states.txt", "a")
+    #    f = open("C:/Users/theem/PycharmProjects/AI_HW5/states_2.txt", "a")
 
-        index = 0
+    #    index = 0
 
-        for state in self.saved_states:
-            f.write("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n" % (state[0, 0], state[1, 0], state[2, 0], state[3, 0], state[4, 0], state[5, 0], state[6, 0],
-                                                                  state[7, 0], state[8, 0], state[9, 0], state[10, 0], state[11, 0], self.state_evals[index]))
-            index += 1
-        f.close()
+    #    for state in self.saved_states:
+    #        f.write("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n" % (state[0, 0], state[1, 0], state[2, 0], state[3, 0], state[4, 0], state[5, 0], state[6, 0],
+    #                                                              state[7, 0], state[8, 0], state[9, 0], state[10, 0], state[11, 0], self.state_evals[index]))
+    #        index += 1
+    #    f.close()
 
 
-        self.shuffle_states_in_file("C:/Users/theem/PycharmProjects/AI_HW5/states.txt")
+    #    self.shuffle_states_in_file("C:/Users/theem/PycharmProjects/AI_HW5/states_2.txt")
+
+    #    self.read_states_from_file_and_train_neural_network("C:/Users/theem/PycharmProjects/AI_HW5/states_shuffled_2.txt")
 
 
 
