@@ -67,6 +67,7 @@ class AIPlayer(Player):
     saved_states = []
     state_evals = []
 
+
     # __init__
     # Description: Creates a new Player
     #
@@ -75,26 +76,28 @@ class AIPlayer(Player):
     ##
     def __init__(self, inputPlayerId):
         super(AIPlayer, self).__init__(inputPlayerId, "Neural Network AI")
-        random_array = np.random.rand(9, 12)
-        random_array_2 = np.random.rand(9, 1)
+
+        # generates random matrices if uncommented
+        # random_array = np.random.rand(9, 12)
+        # random_array_2 = np.random.rand(9, 1)
         # self.first_weight_matrix = np.matrix(random_array)
-        '''for x in range(9):
-            for y in range(12):
-                z = random.randint(0, 2)
-                if z == 0:
-                    self.first_weight_matrix[x, y] = self.first_weight_matrix[x, y] * -1.5 * random.uniform(0, 2)
-                else:
-                    self.first_weight_matrix[x, y] = self.first_weight_matrix[x, y] * 1.5 * random.uniform(0, 2)
-        for x in range(9):
-            z = random.randint(0, 2)
-            if z == 0:
-                self.first_weight_matrix[x, y] = self.first_weight_matrix[x, 0] * -1.5 * random.uniform(0, 2)
-            else:
-                self.first_weight_matrix[x, y] = self.first_weight_matrix[x, 0] * 1.5 * random.uniform(0, 2)'''
+        # for x in range(9):
+        #    for y in range(12):
+        #        z = random.randint(0, 2)
+        #        if z == 0:
+        #            self.first_weight_matrix[x, y] = self.first_weight_matrix[x, y] * -1.5 * random.uniform(0, 2)
+        #        else:
+        #            self.first_weight_matrix[x, y] = self.first_weight_matrix[x, y] * 1.5 * random.uniform(0, 2)
+        # for x in range(9):
+        #    z = random.randint(0, 2)
+        #    if z == 0:
+        #        self.first_weight_matrix[x, y] = self.first_weight_matrix[x, 0] * -1.5 * random.uniform(0, 2)
+        #    else:
+        #        self.first_weight_matrix[x, y] = self.first_weight_matrix[x, 0] * 1.5 * random.uniform(0, 2)
         # print self.first_weight_matrix
         # print self.second_weight_matrix
 
-        # learned weights
+        # sets matrices to learned weights
         self.first_weight_matrix = np.matrix([[1.44421011e+00,  -1.83471661e-01,   8.76387763e-01,   1.03611718e+01,
                                                -2.58004099e-01,  -3.41595794e-01,   1.88884207e+00,   8.63799627e-01,
                                                1.56357590e-01,   7.71383658e-01,   1.13694462e+00,   2.30197841e+00],
@@ -125,11 +128,13 @@ class AIPlayer(Player):
         self.second_weight_matrix = np.matrix([[3.27069721, 1.38229721, -1.97770279, 0.77229721, 1.38429721,
                                                 -2.38770279, -1.82770279, 1.27729721, -2.92610279]])
 
+
     # Method to create a node containing the state, evaluation, move, current depth,
     # the parent node, and the index
     def create_node(self, state, evaluation, move, current_depth, parent_index, index):
         node = [state, evaluation, move, current_depth, parent_index, index]
         self.node_list.append(node)
+
 
     ##
     # getPlacement
@@ -209,6 +214,7 @@ class AIPlayer(Player):
         else:
             return Move(END, None, None)
 
+
     ##
     # getAttack
     # Description: Gets the attack to be made from the Player
@@ -277,8 +283,6 @@ class AIPlayer(Player):
             if not len(node_list) == 0:
                 best_nodes.append(node_list.pop())
 
-
-
         #best_val = -1
 
         #if not at the max depth, expand all the nodes in node_list and return
@@ -297,8 +301,6 @@ class AIPlayer(Player):
                     if alpha >= beta:
                         #print("Pruned")
                         break
-
-
 
         #if not curr_depth == 0:
         if game_state.whoseTurn == self.me and not curr_depth == 0:
@@ -325,14 +327,28 @@ class AIPlayer(Player):
     # get_closest_enemy_dist - helper function
     #
     # returns distance to closest enemy from an ant
+    #
+    # Parameters
+    #   my_ant_coords - coordinates of the ant we're comapring enemy locations to
+    #   enemy_ants - a list of the enemy ants
+    #
+    # Return
+    #   returns the distance to the closest enemy from my_ant_coords
     ##
     def get_closest_enemy_dist(self, my_ant_coords, enemy_ants):
+
+        # starting value
         closest_dist = 100
+
+        # loops through enemy ants
         for ant in enemy_ants:
             if not ant.type == WORKER:
+
+                # if the distance is the smallest yet, update closest
                 dist = approxDist(my_ant_coords, ant.coords)
                 if dist < closest_dist:
                     closest_dist = dist
+
         return closest_dist
 
 
@@ -340,6 +356,13 @@ class AIPlayer(Player):
     # get_closest_enemy_worker_dist - helper function
     #
     # returns distance to closest enemy worker ant
+    #
+    # Parameters
+    #   my_ant_coords - coordinates of the ant we're comapring enemy locations to
+    #   enemy_ants - a list of the enemy ants
+    #
+    # Return
+    #   returns the distance to the closest enemy worker from my_ant_coords
     ##
     def get_closest_enemy_worker_dist(self, my_ant_coords, enemy_ants):
         closest_dist = 100
@@ -355,12 +378,19 @@ class AIPlayer(Player):
     # get_closest_enemy_food_dist - helper function
     #
     # returns distance to closest enemy food
+    #
+    # Parameters
+    #   my_ant_coords - the coordinates of the ant we're comapring the food location to
+    #   enemy_food_coords - a list of the coordinates of the enemy food
+    #
     ##
     def get_closest_enemy_food_dist(self, my_ant_coords, enemy_food_coords):
 
+        # finds the distance to both enemy foods from the current ant
         enemy_food1_dist = approxDist(my_ant_coords, enemy_food_coords[0])
         enemy_food2_dist = approxDist(my_ant_coords, enemy_food_coords[1])
 
+        # returns the shortest distance
         if enemy_food1_dist < enemy_food2_dist:
             return enemy_food1_dist
         else:
