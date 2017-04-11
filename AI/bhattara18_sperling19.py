@@ -25,9 +25,6 @@ from AIPlayerUtils import *
 ##
 class AIPlayer(Player):
 
-    #list of nodes for search tree
-    node_list = []
-
     #maximum depth
     max_depth = 2
 
@@ -127,13 +124,6 @@ class AIPlayer(Player):
                                                6.53715341e-01,   8.89692303e-01,   4.71905993e-01,   3.06223822e-01]])
         self.second_weight_matrix = np.matrix([[3.27069721, 1.38229721, -1.97770279, 0.77229721, 1.38429721,
                                                 -2.38770279, -1.82770279, 1.27729721, -2.92610279]])
-
-
-    # Method to create a node containing the state, evaluation, move, current depth,
-    # the parent node, and the index
-    def create_node(self, state, evaluation, move, current_depth, parent_index, index):
-        node = [state, evaluation, move, current_depth, parent_index, index]
-        self.node_list.append(node)
 
 
     ##
