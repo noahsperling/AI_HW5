@@ -19,7 +19,7 @@ from AIPlayerUtils import *
 # based on the evaluate_state heuristic function
 # Assignment: Homework #3: Minimax AI
 #
-# Due Date: April 7th, 2017
+# Due Date: April 10th, 2017
 #
 # @names: Noah Sperling, Avaya Bhattara
 ##
@@ -63,9 +63,7 @@ class AIPlayer(Player):
     # the learning rate
     alpha = 8.0
 
-    # number of states to read if setting a finite value
-    #states_to_train = 3279896
-
+    # variables for storing states for training the neural network
     saved_states = []
     state_evals = []
 
@@ -79,7 +77,7 @@ class AIPlayer(Player):
         super(AIPlayer, self).__init__(inputPlayerId, "Neural Network AI")
         random_array = np.random.rand(9, 12)
         random_array_2 = np.random.rand(9, 1)
-        self.first_weight_matrix = np.matrix(random_array)
+        # self.first_weight_matrix = np.matrix(random_array)
         '''for x in range(9):
             for y in range(12):
                 z = random.randint(0, 2)
@@ -96,30 +94,7 @@ class AIPlayer(Player):
         # print self.first_weight_matrix
         # print self.second_weight_matrix
 
-        #learned values for weights
-        #self.first_weight_matrix = np.matrix([[-0.3314809, 0.02051796, 0.27827176, -0.13405296, -0.04528323, -0.36593736,
-        #                                       3.17357949, 0.36388308, -0.15984621, -0.06549157,  2.38986198,  4.76316749],
-        #                                      [0.79981796, -0.14335352, -1.10948285, -0.21529436, -0.21086663, -0.42392553,
-        #                                        -1.68807608,  0.06379986, -0.07891959, -0.43177387, -0.26132329, -0.09915906],
-        #                                      [1.59358917, 1.12905693, -2.12554067,  3.09774118,  1.24415781,  0.41511965,
-        #                                        -0.49083319, -1.13310185,  3.34461548,  0.16465817,  0.97961905,  0.14098712],
-        #                                      [-0.84180967, -0.14284245, 0.94115319,  0.17680101,  0.55560549, -0.19979548,
-        #                                        0.69912501,  0.36782068,  1.08905214,  0.09120488,  2.61922783,  2.65839143],
-        #                                      [0.17417748,  0.37534935,  0.45778235,  1.74296068, 0.70788871,  0.82802305,
-        #                                       1.85280889,  0.58748228,  2.54832074,  0.27582609,  0.51837024,  0.21399626],
-        #                                      [2.43836315, -0.24262531, -0.56076182,  2.46458728,  0.30935094,  1.07695769,
-        #                                       -0.57731759,  1.0619382,   0.54899854,  0.05020451, -1.78021857,  0.80811433],
-        #                                      [-0.46342259, 0.05012759, -1.99246034,  0.03044827,  0.21947921,  0.25378643,
-        #                                       1.00809016, -0.49205424,  0.05191638,  2.25520847, -1.58925333,  0.06982269],
-        #                                      [2.44605033, 0.08222542, 0.93760285, -0.0184974,  -0.42073367, -0.01302286,
-        #                                       1.54781771, 0.64117251, -0.03103366,  0.72376047, -0.04553157, 3.09536881],
-        #                                      [-0.17381389, 0.75642789, -1.67034501,  0.38846515,  0.40972277,  0.51083269,
-        #                                       0.19371773, -0.03577274,  0.11294647,  0.19104483,  1.92858105,  1.5521175]])
-
-        #learned values for weights
-        #self.second_weight_matrix = np.matrix([[3.45498413, 1.56658413, -1.79341587, 0.95658413, 1.56858413, -2.20341587,
-        #                                        -1.64341587, 1.46158413, -2.74181587]])
-
+        # learned weights
         self.first_weight_matrix = np.matrix([[1.44421011e+00,  -1.83471661e-01,   8.76387763e-01,   1.03611718e+01,
                                                -2.58004099e-01,  -3.41595794e-01,   1.88884207e+00,   8.63799627e-01,
                                                1.56357590e-01,   7.71383658e-01,   1.13694462e+00,   2.30197841e+00],
@@ -290,7 +265,7 @@ class AIPlayer(Player):
             if not state_eval == 0.00001:
                 node_list.append([state, move, state_eval])
 
-
+        # sorts list of nodes
         self.mergeSort(node_list)
 
         if not self.me == game_state.whoseTurn:
@@ -785,25 +760,29 @@ class AIPlayer(Player):
     ##
     def neural_network(self, input_matrix, h_eval):
 
+        # calculates input for each node in the first laer of the neural network
         first_layer_input = np.matmul(self.first_weight_matrix, input_matrix)
 
         temp_list = []
 
+        # calculates ouput for first layer perceptrons
         for x in np.nditer(first_layer_input):
             temp_list.append(self.g(x))
 
+        # converts outputs to a matrix
         first_layer_output = np.matrix([[temp_list[0]], [temp_list[1]], [temp_list[2]], [temp_list[3]], [temp_list[4]],
                                         [temp_list[5]], [temp_list[6]], [temp_list[7]], [temp_list[8]]])
 
         #print self.second_weight_matrix
         #print first_layer_output
 
+        # calculates input to second layer
         second_layer_input = np.matmul(self.second_weight_matrix, first_layer_output)
 
+        #calculates single output
         second_layer_output = self.g(second_layer_input[0, 0])
 
-        # this is bad code but I'm still new to numpy and it should work
-
+        # this stores output in an inefficient way that works so I'm not going to worry about it
         output = 0
 
         for y in np.nditer(second_layer_output):
@@ -812,14 +791,16 @@ class AIPlayer(Player):
 
         # print output
 
+        # calculates error
         error = h_eval - output
 
         #print "Error:", error
 
+        #if not intended to learn, return output
         if h_eval == -1:
             return output
 
-        # back propogation
+        # back propogation if training
 
         index = 0
 
@@ -827,6 +808,7 @@ class AIPlayer(Player):
 
         swl = []
 
+        # back propogation for second weight matrix
         for x in np.nditer(self.second_weight_matrix):
             delta = self.g_derivative(second_layer_input, False) * error
             #g_deriv = self.g_derivative(second_layer_input, True)
@@ -834,28 +816,25 @@ class AIPlayer(Player):
             swl.append(new_weight)
             index += 1
 
+        # re-forms second weight matrix
         self.second_weight_matrix = np.matrix([[swl[0], swl[1], swl[2], swl[3], swl[4], swl[5], swl[6], swl[7],
                                                 swl[8]]])
 
+        # a list of the new weights
         weight_list = []
 
+        # stores the list of new weights between first and second layer of perceptrons
         for item in np.nditer(self.second_weight_matrix):
             weight_list.append(item)
 
+        # makes an array of delta values
         for x in range(9):
             delta_array.append(self.g_derivative(first_layer_output[x], True) * weight_list[x] * delta)
 
+        # back propogation for the first weight matrix
         for x in range(9):
             for y in range(12):
-
-                #print self.first_weight_matrix[x, y]
-
                 self.first_weight_matrix[x, y] = self.first_weight_matrix[x, y] + self.alpha * delta_array[x] * input_matrix[y, 0]
-
-                #print self.first_weight_matrix[x, y]
-
-        #for x in np.nditer(self.first_weight_matrix):
-
 
         return output
 
@@ -870,7 +849,6 @@ class AIPlayer(Player):
     #   returns the output value of the sigmoid function
     ##
     def g(self, x):
-        print x
         return 1 / (1 + 2.7182818284 ** (-1 * x))
 
 
@@ -884,6 +862,8 @@ class AIPlayer(Player):
     #   returns the derivative of the sigmoid function at x
     ##
     def g_derivative(self, x, g_of_x):
+
+        # calculates differently based on whether g(x) was inputted or just x
         if not g_of_x:
             output = (1 / (1+np.exp(-x).item())) * (1 - (1 / (1+np.exp(-x).item())))
             return output
@@ -895,38 +875,63 @@ class AIPlayer(Player):
     # merge_sort
     #
     # useful for sorting the move list from least to greatest in nlog(n) time
+    #
+    # Parameters:
+    #   alist - a list to sort
+    #
+    # Return
+    #   returns a sorted list
     ##
     def mergeSort(self, alist):
         if len(alist) > 1:
+
+            # splits list
             mid = len(alist) // 2
             lefthalf = alist[:mid]
             righthalf = alist[mid:]
 
+            # recursive call
             self.mergeSort(lefthalf)
             self.mergeSort(righthalf)
 
+            # values to keep track of indices
             i = 0
             j = 0
             k = 0
+
+            # sorts lists
             while i < len(lefthalf) and j < len(righthalf):
                 if lefthalf[i][2] < righthalf[j][2]:
                     alist[k] = lefthalf[i]
-                    i = i + 1
+                    i += 1
                 else:
                     alist[k] = righthalf[j]
-                    j = j + 1
-                k = k + 1
+                    j += 1
+                k += 1
 
             while i < len(lefthalf):
                 alist[k] = lefthalf[i]
-                i = i + 1
-                k = k + 1
+                i += 1
+                k += 1
 
             while j < len(righthalf):
                 alist[k] = righthalf[j]
-                j = j + 1
-                k = k + 1
+                j += 1
+                k += 1
 
+
+    ##
+    # write_state_to_file
+    #   writes a gamestate to a file in a format easily transferred to an input matrix
+    #   for the neural network
+    #
+    # Parameters
+    #   state - the gamestate to save
+    #   state_eval - the evaluation of the state by the heuristic
+    #   file_name - the file path to write the states to
+    #
+    # Returns nothing
+    ##
     def write_state_to_file(self, state, state_eval, file_name):
 
         # the input matrix to save
@@ -939,46 +944,73 @@ class AIPlayer(Player):
         for v in np.nditer(values):
             lv.append(v)
 
-        #checks to make sure nothing went wrong
+        # checks to make sure nothing went wrong generating an input matrix
         if not len(lv) == 12:
             print "Error"
 
-        # if nothing went wrong
+        # if nothing went wrong, writes the state to the specified file
         else:
             try:
                 file = open(file_name, "a")
                 # print "File opened"
-                line_to_write = lv[0], lv[1], lv[2], lv[3], lv[4], lv[5], lv[6], lv[7], lv[8], lv[9], lv[10], lv[11], state_eval
                 file.write("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n" % (lv[0], lv[1], lv[2], lv[3], lv[4], lv[5], lv[6], lv[7], lv[8], lv[9], lv[10], lv[11], state_eval))
                 file.close()
                 # print "File closed"
+
+            # just in case
             except Exception:
                 print("Something went wrong opening and appending to the text file.")
         return
 
+
+    ##
+    # read_states_from_file_and_train_neural_network
+    #   does what the name indicates
+    #
+    # Parameters
+    #   file_name - file path to read from and train network
+    #
+    # Returns nothing
+    ##
     def read_states_from_file_and_train_neural_network(self, file_name):
 
+        # counts number of states to train
         states_to_train = sum(1 for line in open(file_name))
 
+        # opens file to read from
         with open(file_name) as f:
 
+            # prints weight matrix before training for comparison
             print self.first_weight_matrix
 
-
-
+            # to keep track of how many states assessed
             line_count = 0
 
+            # loops through lines in the file and trains the neural network
             for line in f:
+
+                # splits comma separated values into a list
                 ls = line.split(",")
+
+                # a second list for float values
                 ls2 = []
+
+                # loops through ls, converts strings to floats, and appends to ls2
                 for num in ls:
                     ls2.append(float(num))
+
+                # creates input matrix for a state and finds the state's evaluation
                 input_matrix = np.matrix([[ls2[0]], [ls2[1]], [ls2[2]], [ls2[3]], [ls2[4]], [ls2[5]], [ls2[6]],
                                           [ls2[7]], [ls2[8]], [ls2[9]], [ls2[10]], [ls2[11]]])
                 state_eval = ls2[12]
+
+                # calls the neural network so that it learns
                 self.neural_network(input_matrix, state_eval)
+
+                # iterate line count
                 line_count += 1
 
+                # decrease alpha over time
                 if line_count == 1000:
                     self.alpha = 2
                 elif line_count == 10000:
@@ -988,43 +1020,69 @@ class AIPlayer(Player):
                 elif self.alpha == 50000:
                     self.alpha = 0.1
 
+                # prints weight matrices at end of learning
                 if line_count >= states_to_train - 1:
                     print self.first_weight_matrix
                     print self.second_weight_matrix
                     break
+
+        # closes file and returns
         f.close()
         return
 
+    ##
+    # shuffle_states_in_file
+    #   reads lines from a file and shuffles their order, outputting to a new file
+    #
+    # Parameters
+    #   file_name - file path to read from
+    #
+    # Returns nothing
+    ##
     def shuffle_states_in_file(self, file_name):
 
+        # a list for the gamestates saved in the file
         state_list = []
 
+        # opens file and appends states to the states list
         with open(file_name) as f:
             for line in f:
                 state_list.append(line)
 
+        # shuffles the order of state_list
         random.shuffle(state_list)
 
+        #writes the new states to a new file
         with open("C:/Users/theem/PycharmProjects/AI_HW5/states_shuffled_2.txt", "w") as wf:
             for state in state_list:
                 wf.write(state)
 
+
+    ##
+    # registerWin
+    #   overrides registerWin method to train neural network after a game (when not commented out)
+    #
+    # Parameters
+    #   hasWon - a boolean saying if this AI has won
+    #
+    # Returns nothing
+    ##
     #def registerWin(self, hasWon):
     #    super(AIPlayer, self).registerWin(hasWon)
-
+    #
     #    f = open("C:/Users/theem/PycharmProjects/AI_HW5/states_2.txt", "a")
-
+    #
     #    index = 0
-
+    #
     #    for state in self.saved_states:
     #        f.write("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n" % (state[0, 0], state[1, 0], state[2, 0], state[3, 0], state[4, 0], state[5, 0], state[6, 0],
     #                                                              state[7, 0], state[8, 0], state[9, 0], state[10, 0], state[11, 0], self.state_evals[index]))
     #        index += 1
     #    f.close()
-
-
+    #
+    #
     #    self.shuffle_states_in_file("C:/Users/theem/PycharmProjects/AI_HW5/states_2.txt")
-
+    #
     #    self.read_states_from_file_and_train_neural_network("C:/Users/theem/PycharmProjects/AI_HW5/states_shuffled_2.txt")
 
 
@@ -1036,6 +1094,7 @@ class AIPlayer(Player):
 # AIP.shuffle_states_in_file("C:/Users/theem/PycharmProjects/AI_HW5/states.txt")
 # AIP.read_states_from_file_and_train_neural_network("C:/Users/theem/PycharmProjects/AI_HW5/states_shuffled.txt")
 # AIP.read_states_from_file_and_train_neural_network("C:/Users/Noah/PycharmProjects/AI_HW5/states_laptop.txt")
+
 # unit tests
 # testPlayer = AIPlayer(PLAYER_ONE)
 #test get_closest_enemy_dist
